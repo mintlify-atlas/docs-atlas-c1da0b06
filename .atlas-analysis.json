@@ -1,0 +1,59 @@
+{
+  "projectType": "general",
+  "projectName": "Magic Love Korean Dotfiles",
+  "projectDescription": "Personal development environment configuration files for Zsh, Tmux, Yazi, and OpenCode agent customization",
+  "theme": "aspen",
+  "primaryColor": "#2CF9ED",
+  "lightColor": "#06BCE4",
+  "darkColor": "#011628",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "introduction",
+          "installation"
+        ]
+      },
+      {
+        "group": "Configuration",
+        "pages": [
+          "configuration/zsh",
+          "configuration/tmux",
+          "configuration/yazi",
+          "configuration/opencode"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "guides/shell-setup",
+          "guides/keybindings",
+          "guides/customization"
+        ]
+      },
+      {
+        "group": "Reference",
+        "pages": [
+          "reference/tools",
+          "reference/plugins",
+          "reference/troubleshooting"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Zsh configuration with Oh My Zsh and Powerlevel10k theme",
+    "Tmux configuration with custom keybindings and plugin management",
+    "Yazi file manager with rose-pine theme and advanced keymaps",
+    "FZF integration with custom color scheme and fd backend",
+    "Modern CLI tools integration (eza, zoxide, bat, fd)",
+    "OpenCode debugging agent customization"
+  ],
+  "publicApiSurface": [
+    ".zshrc - Zsh shell configuration",
+    ".tmux.conf - Tmux terminal multiplexer configuration",
+    ".config/yazi/ - Yazi file manager configuration",
+    ".config/opencode/agent/debugging-guide.md - Custom OpenCode agent"
+  ]
+}
