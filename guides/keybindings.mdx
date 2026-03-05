@@ -1,0 +1,321 @@
+---
+title: Keybindings Reference
+description: Comprehensive reference for all keybindings in tmux, Zsh, and Yazi
+---
+
+This page documents all keybindings configured in the dotfiles for tmux, Zsh, and Yazi.
+
+## Tmux Keybindings
+
+<Note>
+**Prefix Key:** `Ctrl+a` (instead of the default `Ctrl+b`)
+
+Most tmux commands require pressing the prefix key first.
+</Note>
+
+### Window Management
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `Ctrl+a` then `\|` | Split horizontal | Split window into left/right panes |
+| `Ctrl+a` then `-` | Split vertical | Split window into top/bottom panes |
+| `Ctrl+a` then `r` | Reload config | Reload `~/.tmux.conf` configuration |
+| `Ctrl+a` then `m` | Maximize pane | Toggle pane zoom (fullscreen) |
+
+### Pane Navigation
+
+<Tip>
+The vim-tmux-navigator plugin allows seamless navigation between tmux panes and vim/nvim splits using `Ctrl+hjkl`.
+</Tip>
+
+| Keybinding | Action |
+|------------|--------|
+| `Ctrl+h` | Move to left pane (works with vim/nvim) |
+| `Ctrl+j` | Move to pane below (works with vim/nvim) |
+| `Ctrl+k` | Move to pane above (works with vim/nvim) |
+| `Ctrl+l` | Move to right pane (works with vim/nvim) |
+
+### Pane Resizing
+
+All resize bindings are repeatable (press prefix once, then key multiple times):
+
+| Keybinding | Action |
+|------------|--------|
+| `Ctrl+a` then `h` (repeatable) | Resize pane left by 5 cells |
+| `Ctrl+a` then `j` (repeatable) | Resize pane down by 5 cells |
+| `Ctrl+a` then `k` (repeatable) | Resize pane up by 5 cells |
+| `Ctrl+a` then `l` (repeatable) | Resize pane right by 5 cells |
+
+### Copy Mode (Vi Mode)
+
+<Accordion title="Copy Mode Keybindings">
+
+Enter copy mode with `Ctrl+a` then `[`
+
+| Keybinding | Action |
+|------------|--------|
+| `v` | Start selection (like visual mode in vim) |
+| `y` | Yank/copy selected text |
+| `q` | Exit copy mode |
+
+Mouse drag is enabled but won't exit copy mode automatically.
+
+</Accordion>
+
+### Utility
+
+| Keybinding | Action |
+|------------|--------|
+| `Alt+e` | Clear pane | Send clear command and enter |
+
+### Plugins
+
+Configured plugins:
+- **vim-tmux-navigator**: Seamless vim/tmux navigation
+- **tmux-themepack**: Powerline cyan theme
+- **tmux-resurrect**: Save/restore sessions after restart
+- **tmux-continuum**: Auto-save sessions every 15 minutes
+
+---
+
+## Zsh Keybindings
+
+### History Search
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `↑` (Up arrow) | Search backward | Search history for commands starting with current input |
+| `↓` (Down arrow) | Search forward | Move forward through history search results |
+
+<Tip>
+Start typing a command, then press Up arrow to search through your history for commands that start with what you've typed.
+</Tip>
+
+### Autosuggestions
+
+As you type, zsh-autosuggestions will show a grayed-out suggestion:
+
+| Keybinding | Action |
+|------------|--------|
+| `→` (Right arrow) or `End` | Accept suggestion | Accept the entire suggestion |
+| `Ctrl+→` | Accept word | Accept only the next word of the suggestion |
+
+---
+
+## Yazi Keybindings
+
+Yazi is a terminal file manager with extensive keybindings. Launch with `y` command.
+
+### Navigation
+
+<Tabs>
+  <Tab title="Basic Movement">
+    | Keybinding | Action |
+    |------------|--------|
+    | `k` or `↑` | Move cursor up |
+    | `j` or `↓` | Move cursor down |
+    | `h` or `←` | Go to parent directory |
+    | `l` or `→` or `Enter` | Enter directory or open file |
+    | `g g` | Jump to top of list |
+    | `G` | Jump to bottom of list |
+    | `H` | Go back in navigation history |
+    | `L` | Go forward in navigation history |
+  </Tab>
+  <Tab title="Page Scrolling">
+    | Keybinding | Action |
+    |------------|--------|
+    | `Ctrl+u` | Move up half page |
+    | `Ctrl+d` | Move down half page |
+    | `Ctrl+b` or `PageUp` | Move up full page |
+    | `Ctrl+f` or `PageDown` | Move down full page |
+    | `K` | Seek up 5 units in preview |
+    | `J` | Seek down 5 units in preview |
+  </Tab>
+</Tabs>
+
+### File Operations
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `o` or `Enter` | Open file | Open with default application |
+| `O` or `Shift+Enter` | Open interactive | Choose application to open with |
+| `y` | Yank (copy) | Copy selected files to clipboard |
+| `x` | Cut | Cut selected files |
+| `p` | Paste | Paste copied/cut files |
+| `P` | Force paste | Paste and overwrite existing files |
+| `d` | Trash | Move selected files to trash |
+| `D` | Delete permanently | Permanently delete files (dangerous!) |
+| `a` | Create | Create file or directory (end with `/` for directory) |
+| `r` | Rename | Rename selected file |
+| `-` | Symlink | Create symlink with absolute path |
+| `_` | Symlink relative | Create symlink with relative path |
+
+<Warning>
+`D` (uppercase) permanently deletes files without moving to trash. Use with caution!
+</Warning>
+
+### Selection
+
+| Keybinding | Action |
+|------------|--------|
+| `Space` | Toggle selection on current file |
+| `v` | Enter visual mode (selection mode) |
+| `V` | Enter visual unset mode |
+| `Ctrl+a` | Select all files |
+| `Ctrl+r` | Invert selection |
+| `Esc` | Clear selection / exit visual mode |
+
+### Search and Filter
+
+<Accordion title="Search Keybindings">
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `s` | Search by name | Search files using fd |
+| `S` | Search by content | Search file contents using ripgrep |
+| `f` | Filter | Filter visible files |
+| `/` | Find next | Find next file matching pattern |
+| `?` | Find previous | Find previous file matching pattern |
+| `n` | Next match | Jump to next found file |
+| `N` | Previous match | Jump to previous found file |
+| `Ctrl+s` | Cancel search | Stop ongoing search |
+
+</Accordion>
+
+### Fuzzy Jumping
+
+| Keybinding | Action | Description |
+|------------|--------|-------------|
+| `z` | FZF jump | Jump to file/directory using fzf fuzzy finder |
+| `Z` | Zoxide jump | Jump to directory using zoxide |
+| `g Space` | Interactive cd | Jump to directory interactively |
+
+### Goto Shortcuts
+
+| Keybinding | Action |
+|------------|--------|
+| `g h` | Go to home directory (`~`) |
+| `g c` | Go to config directory (`~/.config`) |
+| `g d` | Go to Downloads directory |
+| `g f` | Follow symlink |
+
+### Tab Management
+
+<Tabs>
+  <Tab title="Tab Operations">
+    | Keybinding | Action |
+    |------------|--------|
+    | `t` | Create new tab |
+    | `[` | Switch to previous tab |
+    | `]` | Switch to next tab |
+    | `{` | Swap with previous tab |
+    | `}` | Swap with next tab |
+    | `Ctrl+c` | Close current tab |
+  </Tab>
+  <Tab title="Direct Tab Switching">
+    | Keybinding | Action |
+    |------------|--------|
+    | `1` | Switch to tab 1 |
+    | `2` | Switch to tab 2 |
+    | `3` | Switch to tab 3 |
+    | `4` | Switch to tab 4 |
+    | `5` | Switch to tab 5 |
+    | `6` | Switch to tab 6 |
+    | `7` | Switch to tab 7 |
+    | `8` | Switch to tab 8 |
+    | `9` | Switch to tab 9 |
+  </Tab>
+</Tabs>
+
+### Copying Paths
+
+<Accordion title="Copy Operations">
+
+| Keybinding | Action |
+|------------|--------|
+| `c c` | Copy full file path |
+| `c d` | Copy directory path |
+| `c f` | Copy filename |
+| `c n` | Copy filename without extension |
+
+</Accordion>
+
+### Line Modes
+
+Change the information displayed next to files:
+
+| Keybinding | Action |
+|------------|--------|
+| `m s` | Show file sizes |
+| `m p` | Show permissions |
+| `m m` | Show modified time |
+| `m b` | Show birth/creation time |
+| `m o` | Show owner |
+| `m n` | Show none (minimal) |
+
+### Sorting
+
+<Accordion title="Sort Options">
+
+| Keybinding | Action |
+|------------|--------|
+| `, m` | Sort by modified time |
+| `, M` | Sort by modified time (reverse) |
+| `, b` | Sort by birth time |
+| `, B` | Sort by birth time (reverse) |
+| `, e` | Sort by extension |
+| `, E` | Sort by extension (reverse) |
+| `, a` | Sort alphabetically |
+| `, A` | Sort alphabetically (reverse) |
+| `, n` | Sort naturally |
+| `, N` | Sort naturally (reverse) |
+| `, s` | Sort by size |
+| `, S` | Sort by size (reverse) |
+| `, r` | Sort randomly |
+
+</Accordion>
+
+### Shell Operations
+
+| Keybinding | Action |
+|------------|--------|
+| `;` | Run shell command (interactive) |
+| `:` | Run shell command (blocking) |
+| `.` | Toggle hidden files visibility |
+
+### Other
+
+| Keybinding | Action |
+|------------|--------|
+| `w` | Show task manager |
+| `q` | Quit Yazi |
+| `Q` | Quit without writing cwd-file |
+| `Ctrl+z` | Suspend process |
+| `~` or `F1` | Show help |
+| `Tab` | Spot hovered file |
+
+---
+
+## Quick Reference Card
+
+<Accordion title="Most Used Commands">
+
+### Tmux Essentials
+- **Prefix**: `Ctrl+a`
+- **Split horizontal**: Prefix + `|`
+- **Split vertical**: Prefix + `-`
+- **Clear pane**: `Alt+e`
+
+### Zsh Essentials
+- **History search**: `↑` / `↓` arrows
+- **Accept suggestion**: `→` or `End`
+
+### Yazi Essentials
+- **Navigate**: `hjkl` or arrows
+- **Copy**: `y`
+- **Paste**: `p`
+- **Delete**: `d` (trash) or `D` (permanent)
+- **Search**: `s` (name) or `S` (content)
+- **Fuzzy jump**: `z`
+
+</Accordion>

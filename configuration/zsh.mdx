@@ -1,0 +1,308 @@
+---
+title: Zsh Configuration
+description: Complete guide to the Zsh shell configuration including Oh My Zsh, Powerlevel10k, plugins, and modern CLI tools
+---
+
+## Overview
+
+The `.zshrc` configuration sets up a powerful and modern shell environment with:
+- Oh My Zsh framework for plugin management
+- Powerlevel10k theme for a beautiful and informative prompt
+- Modern CLI replacements (eza, zoxide, fzf)
+- Enhanced history and autosuggestions
+- NVM and Homebrew integration
+
+## Oh My Zsh Setup
+
+### Installation Path
+
+```bash .zshrc:12
+export ZSH="$HOME/.oh-my-zsh"
+```
+
+The Oh My Zsh framework is installed in the home directory and provides the foundation for theme and plugin management.
+
+### Theme Configuration
+
+```bash .zshrc:18
+ZSH_THEME="robbyrussell"
+```
+
+<Note>
+While the ZSH_THEME is set to "robbyrussell", Powerlevel10k is actually loaded via Homebrew (line 120), which overrides this setting.
+</Note>
+
+### Plugins
+
+```bash .zshrc:80-82
+plugins=(git)
+
+source $ZSH/oh-my-zsh.sh
+```
+
+Currently only the `git` plugin is enabled, which provides:
+- Git aliases and shortcuts
+- Git status information in the prompt
+- Auto-completion for git commands
+
+## Powerlevel10k
+
+### Instant Prompt
+
+```bash .zshrc:4-6
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+```
+
+Instant prompt is enabled at the top of `.zshrc` for faster shell startup. This displays the prompt immediately while the rest of the configuration loads.
+
+<Warning>
+Any code that requires console input (password prompts, confirmations) must be placed above the instant prompt block.
+</Warning>
+
+### Theme Loading
+
+```bash .zshrc:120-123
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+source /home/linuxbrew/.linuxbrew/share/powerlevel10k/powerlevel10k.zsh-theme
+
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+```
+
+Powerlevel10k is loaded from Homebrew and uses a custom configuration file (`~/.p10k.zsh`) for prompt customization.
+
+<Tip>
+Run `p10k configure` to launch the interactive configuration wizard and customize your prompt appearance.
+</Tip>
+
+## History Configuration
+
+<Tabs>
+  <Tab title="Settings">
+    ```bash .zshrc:127-133
+    HISTFILE=$HOME/.zhistory
+    SAVEHIST=1000
+    HISTSIZE=999
+    setopt share_history
+    setopt hist_expire_dups_first
+    setopt hist_ignore_dups
+    setopt hist_verify
+    ```
+
+    <ParamField path="HISTFILE" type="string" default="$HOME/.zhistory">
+      Path to the history file where commands are saved
+    </ParamField>
+
+    <ParamField path="SAVEHIST" type="number" default="1000">
+      Maximum number of history entries to save to the history file
+    </ParamField>
+
+    <ParamField path="HISTSIZE" type="number" default="999">
+      Maximum number of history entries to keep in memory
+    </ParamField>
+  </Tab>
+
+  <Tab title="Options">
+    | Option | Description |
+    |--------|-------------|
+    | `share_history` | Share history between all shell sessions |
+    | `hist_expire_dups_first` | Expire duplicate entries first when trimming history |
+    | `hist_ignore_dups` | Don't record a command if it's a duplicate of the previous one |
+    | `hist_verify` | Show command with history expansion before running it |
+  </Tab>
+</Tabs>
+
+### History Search Keybindings
+
+```bash .zshrc:136-137
+bindkey "^[[A" history-search-backward
+bindkey "^[[B" history-search-forward
+```
+
+Use the **Up** and **Down** arrow keys to search through command history based on what you've typed so far.
+
+## Autosuggestions
+
+```bash .zshrc:138-141
+source /home/linuxbrew/.linuxbrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#b3b3b3'
+```
+
+Zsh-autosuggestions provides Fish-like autosuggestions:
+- Suggestions appear in gray as you type
+- Press **→** (right arrow) to accept a suggestion
+- Press **Ctrl+→** to accept one word at a time
+
+## Syntax Highlighting
+
+```bash .zshrc:143
+source /home/linuxbrew/.linuxbrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+```
+
+Provides syntax highlighting for commands as you type:
+- Valid commands appear in green
+- Invalid commands appear in red
+- Strings, options, and paths are color-coded
+
+## Modern CLI Tools
+
+### Eza (Better ls)
+
+```bash .zshrc:148
+alias ls="eza --icons=always"
+```
+
+[Eza](https://github.com/eza-community/eza) is a modern replacement for `ls` with:
+- Colorized output by default
+- Icon support for different file types
+- Git integration showing file status
+- Better formatting for long listings
+
+### Zoxide (Better cd)
+
+```bash .zshrc:151-153
+eval "$(zoxide init zsh)"
+
+alias cd="z"
+```
+
+[Zoxide](https://github.com/ajeetdsouza/zoxide) is a smarter `cd` command that:
+- Learns your most visited directories
+- Allows jumping to directories by partial name
+- Ranks directories by "frecency" (frequency + recency)
+
+**Examples:**
+```bash
+z docs        # Jump to ~/workspace/docs
+z conf zsh    # Jump to ~/.config/zsh
+zi            # Interactive directory picker
+```
+
+### FZF (Fuzzy Finder)
+
+<Tabs>
+  <Tab title="Setup">
+    ```bash .zshrc:158
+    eval "$(fzf --zsh)"
+    ```
+
+    FZF provides fuzzy finding capabilities with keybindings:
+    - **Ctrl+T**: Fuzzy find files in current directory
+    - **Ctrl+R**: Fuzzy search command history
+    - **Alt+C**: Fuzzy change directory
+  </Tab>
+
+  <Tab title="Integration">
+    ```bash .zshrc:164-174
+    _fzf_compgen_path() {
+      fd --hidden --exclude .git . "$1"
+    }
+
+    _fzf_compgen_dir() {
+      fd --type=d --hidden --exclude .git . "$1"
+    }
+
+    export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+    ```
+
+    FZF is configured to use [fd](https://github.com/sharkdp/fd) for faster and more intuitive file finding, with hidden files included but `.git` directories excluded.
+  </Tab>
+
+  <Tab title="Theme">
+    ```bash .zshrc:180-187
+    fg="#CBE0F0"
+    bg="#011628"
+    bg_highlight="#143652"
+    purple="#B388FF"
+    blue="#06BCE4"
+    cyan="#2CF9ED"
+
+    export FZF_DEFAULT_OPTS="--color=fg:${fg},bg:${bg},hl:${purple},fg+:${fg},bg+:${bg_highlight},hl+:${purple},info:${blue},prompt:${cyan},pointer:${cyan},marker:${cyan},spinner:${cyan},header:${cyan}"
+    ```
+
+    Custom color scheme with dark blue background and cyan/purple accents for a cohesive terminal appearance.
+  </Tab>
+</Tabs>
+
+## Package Manager Integration
+
+### NVM (Node Version Manager)
+
+```bash .zshrc:115-117
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+```
+
+Loads NVM for Node.js version management with bash completion support.
+
+### Homebrew
+
+```bash .zshrc:119
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+```
+
+Initializes Homebrew environment variables and adds Homebrew binaries to PATH.
+
+### Bun
+
+```bash .zshrc:199-203
+[ -s "/home/magictt/.bun/_bun" ] && source "/home/magictt/.bun/_bun"
+
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+```
+
+Configures [Bun](https://bun.sh/) JavaScript runtime with completion support.
+
+## Additional Tools
+
+### Thefuck
+
+```bash .zshrc:191
+eval $(thefuck --alias)
+```
+
+[Thefuck](https://github.com/nvbn/thefuck) corrects your previous console command. Type `fuck` after a failed command to get a correction suggestion.
+
+### Yazi Shell Wrapper
+
+```bash .zshrc:205-212
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+		builtin cd -- "$cwd"
+	fi
+	rm -f -- "$tmp"
+}
+```
+
+Wrapper function that allows Yazi file manager to change the shell's working directory on exit. Use `y` to launch Yazi.
+
+## Custom Aliases
+
+```bash .zshrc:112-113
+alias vim='nvim'
+alias vi='nvim'
+```
+
+Redirects `vim` and `vi` commands to use Neovim instead.
+
+## Environment Variables
+
+```bash .zshrc:214
+export EDITOR=nvim
+```
+
+Sets Neovim as the default editor for git commits, crontab, and other tools that respect the `EDITOR` variable.
+
+```bash .zshrc:196
+export PATH="/home/magictt/.opencode/bin:$PATH"
+```
+
+Adds OpenCode binary to PATH for easy access to the `opencode` command.

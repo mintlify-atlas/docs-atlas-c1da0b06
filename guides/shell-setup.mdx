@@ -1,0 +1,296 @@
+---
+title: Shell Setup
+description: Complete walkthrough for setting up your shell environment with Zsh, Oh My Zsh, Powerlevel10k, and essential tools
+---
+
+This guide walks you through setting up a powerful, modern shell environment with all the tools included in these dotfiles.
+
+## Prerequisites
+
+Before starting, ensure you have:
+- Zsh installed on your system
+- Git installed
+- Homebrew (for Linux/macOS) or your system's package manager
+
+<Steps>
+
+### Install Oh My Zsh
+
+Oh My Zsh is a framework for managing your Zsh configuration.
+
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+This will:
+- Install Oh My Zsh to `~/.oh-my-zsh`
+- Backup your existing `.zshrc` file
+- Create a new `.zshrc` with Oh My Zsh configuration
+
+### Install Homebrew (Linux)
+
+If you're on Linux and don't have Homebrew installed:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Add Homebrew to your shell environment:
+
+```bash
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+```
+
+### Install Powerlevel10k Theme
+
+Powerlevel10k is a fast, flexible Zsh theme with extensive customization options.
+
+```bash
+brew install powerlevel10k
+```
+
+The theme will be sourced in your `.zshrc` from:
+
+```bash
+source /home/linuxbrew/.linuxbrew/share/powerlevel10k/powerlevel10k.zsh-theme
+```
+
+<Note>
+After installation, run `p10k configure` to customize your prompt appearance.
+</Note>
+
+### Install Zsh Plugins
+
+#### zsh-autosuggestions
+
+Provides fish-like autosuggestions as you type.
+
+```bash
+brew install zsh-autosuggestions
+```
+
+The configuration includes a custom highlight style:
+
+```bash
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#b3b3b3'
+```
+
+#### zsh-syntax-highlighting
+
+Provides syntax highlighting for commands as you type.
+
+```bash
+brew install zsh-syntax-highlighting
+```
+
+### Set Up FZF (Fuzzy Finder)
+
+FZF is a powerful command-line fuzzy finder.
+
+```bash
+brew install fzf
+brew install fd  # Better alternative to find
+```
+
+The dotfiles include a custom theme with carefully chosen colors:
+
+<Tabs>
+  <Tab title="Configuration">
+    ```bash
+    # FZF Theme Colors
+    fg="#CBE0F0"          # Foreground text
+    bg="#011628"          # Background
+    bg_highlight="#143652" # Highlighted background
+    purple="#B388FF"       # Syntax highlighting
+    blue="#06BCE4"         # Info text
+    cyan="#2CF9ED"         # Prompts and pointers
+
+    export FZF_DEFAULT_OPTS="--color=fg:${fg},bg:${bg},hl:${purple},fg+:${fg},bg+:${bg_highlight},hl+:${purple},info:${blue},prompt:${cyan},pointer:${cyan},marker:${cyan},spinner:${cyan},header:${cyan}"
+    ```
+  </Tab>
+  <Tab title="Commands">
+    ```bash
+    # Use fd instead of find for better performance
+    export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
+The custom FZF theme uses a dark blue background (#011628) with cyan accents for an elegant, professional look.
+</Tip>
+
+### Install eza (Better ls)
+
+Eza is a modern replacement for `ls` with colors and icons.
+
+```bash
+brew install eza
+```
+
+The dotfiles alias `ls` to eza:
+
+```bash
+alias ls="eza --icons=always"
+```
+
+### Install zoxide (Smart cd)
+
+Zoxide is a smarter `cd` command that learns your habits.
+
+```bash
+brew install zoxide
+```
+
+Configuration:
+
+```bash
+eval "$(zoxide init zsh)"
+alias cd="z"  # Use zoxide instead of cd
+```
+
+<Note>
+After using zoxide for a while, it learns your frequently visited directories. Use `z <partial-name>` to jump to them quickly.
+</Note>
+
+### Install NVM (Node Version Manager)
+
+Manage multiple Node.js versions easily.
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+```
+
+The `.zshrc` includes:
+
+```bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+```
+
+### Install Bun (JavaScript Runtime)
+
+Bun is a fast all-in-one JavaScript runtime.
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+Environment configuration:
+
+```bash
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+```
+
+### Install thefuck
+
+Corrects your previous console command with AI.
+
+```bash
+brew install thefuck
+```
+
+Initialize with:
+
+```bash
+eval $(thefuck --alias)
+```
+
+<Tip>
+Type `fuck` after a failed command, and thefuck will suggest the correct version.
+</Tip>
+
+### Configure History Settings
+
+The dotfiles include optimized history settings:
+
+```bash
+HISTFILE=$HOME/.zhistory
+SAVEHIST=1000
+HISTSIZE=999
+setopt share_history            # Share history between sessions
+setopt hist_expire_dups_first   # Expire duplicates first
+setopt hist_ignore_dups         # Don't record duplicates
+setopt hist_verify              # Show command before executing from history
+```
+
+### Set Up Key Bindings
+
+History search with arrow keys:
+
+```bash
+bindkey "^[[A" history-search-backward  # Up arrow
+bindkey "^[[B" history-search-forward   # Down arrow
+```
+
+<Note>
+Start typing a command and use Up/Down arrows to search through commands that start with what you've typed.
+</Note>
+
+### Configure PATH
+
+Ensure your PATH includes local binaries:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+### Set Default Editor
+
+Set Neovim as your default editor:
+
+```bash
+export EDITOR=nvim
+alias vim='nvim'
+alias vi='nvim'
+```
+
+### Set Up Yazi Shell Wrapper
+
+Yazi is a terminal file manager. Add this function to change directory on exit:
+
+```bash
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+		builtin cd -- "$cwd"
+	fi
+	rm -f -- "$tmp"
+}
+```
+
+Now type `y` to launch Yazi, and when you quit, your shell will cd to the directory you were in.
+
+</Steps>
+
+## Verification
+
+After completing the setup, verify everything works:
+
+```bash
+# Test FZF
+CTRL+T  # Should open file fuzzy finder
+
+# Test eza
+ls  # Should show colorful output with icons
+
+# Test zoxide
+z <directory>  # Jump to frequently used directory
+
+# Test history search
+# Type a few letters and press Up arrow
+
+# Test autosuggestions
+# Start typing a previous command - should see gray suggestion
+```
+
+## Next Steps
+
+- Run `p10k configure` to customize your Powerlevel10k prompt
+- Explore [Keybindings](/guides/keybindings) for tmux and Yazi shortcuts
+- Learn how to [Customize](/guides/customization) these configurations

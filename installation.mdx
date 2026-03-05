@@ -1,0 +1,477 @@
+---
+title: 'Installation'
+description: 'Complete installation guide for setting up your development environment'
+---
+
+## Prerequisites
+
+Before installing the dotfiles, ensure you have a package manager installed on your system.
+
+<CodeGroup>
+
+```bash macOS
+# Install Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+```bash Linux
+# Install Homebrew (Linuxbrew)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Add to shell environment
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+```
+
+```bash Ubuntu/Debian
+sudo apt update
+sudo apt install -y build-essential
+```
+
+</CodeGroup>
+
+<Note>
+This configuration uses Homebrew as the primary package manager across platforms. The shell configuration at `~/.zshrc:119` initializes Homebrew for Linux systems.
+</Note>
+
+## Core Shell Setup
+
+<Steps>
+
+<Step title="Install Oh My Zsh">
+
+Oh My Zsh is required as the base framework for the shell configuration.
+
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+This will install Oh My Zsh to `~/.oh-my-zsh` as referenced in the configuration.
+
+</Step>
+
+<Step title="Install Powerlevel10k Theme">
+
+The configuration uses Powerlevel10k for a customizable and fast prompt.
+
+```bash
+brew install powerlevel10k
+```
+
+The theme is loaded from `/home/linuxbrew/.linuxbrew/share/powerlevel10k/powerlevel10k.zsh-theme` as seen in `.zshrc:120`.
+
+</Step>
+
+<Step title="Install Zsh Plugins">
+
+Install essential Zsh plugins for autosuggestions and syntax highlighting:
+
+```bash
+brew install zsh-autosuggestions
+brew install zsh-syntax-highlighting
+```
+
+These plugins are sourced at:
+- `.zshrc:138` - zsh-autosuggestions
+- `.zshrc:143` - zsh-syntax-highlighting
+
+</Step>
+
+</Steps>
+
+## Terminal Multiplexer Setup
+
+<Steps>
+
+<Step title="Install Tmux">
+
+Install Tmux for terminal session management:
+
+<CodeGroup>
+
+```bash Homebrew
+brew install tmux
+```
+
+```bash Ubuntu/Debian
+sudo apt install tmux
+```
+
+</CodeGroup>
+
+</Step>
+
+<Step title="Install TPM (Tmux Plugin Manager)">
+
+Clone TPM to manage Tmux plugins:
+
+```bash
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+```
+
+<Note>
+The configuration at `.tmux.conf:53` expects TPM to be installed at `~/.tmux/plugins/tpm`.
+</Note>
+
+</Step>
+
+<Step title="Configure Tmux Plugins">
+
+The following plugins are configured in `.tmux.conf`:
+
+- **tmux-plugins/tpm** - Plugin manager (`.tmux.conf:40`)
+- **christoomey/vim-tmux-navigator** - Seamless pane/vim navigation (`.tmux.conf:43`)
+- **jimeh/tmux-themepack** - Theme configuration (`.tmux.conf:44`)
+- **tmux-plugins/tmux-resurrect** - Session persistence (`.tmux.conf:45`)
+- **tmux-plugins/tmux-continuum** - Automatic session saves (`.tmux.conf:46`)
+
+</Step>
+
+</Steps>
+
+## File Manager
+
+<Steps>
+
+<Step title="Install Yazi">
+
+Yazi is a terminal file manager with rich preview capabilities:
+
+<CodeGroup>
+
+```bash Homebrew
+brew install yazi
+```
+
+```bash Cargo
+cargo install --locked yazi-fm
+```
+
+</CodeGroup>
+
+</Step>
+
+<Step title="Configure Yazi Integration">
+
+The shell wrapper function at `.zshrc:205-212` enables directory changes when exiting Yazi:
+
+```bash
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+		builtin cd -- "$cwd"
+	fi
+	rm -f -- "$tmp"
+}
+```
+
+Use `y` command to launch Yazi with directory tracking.
+
+</Step>
+
+</Steps>
+
+## Modern CLI Tools
+
+<Steps>
+
+<Step title="Install Enhanced Command Line Tools">
+
+Replace traditional Unix tools with modern alternatives:
+
+<CodeGroup>
+
+```bash Homebrew
+# Better ls
+brew install eza
+
+# Better cd
+brew install zoxide
+
+# Fuzzy finder
+brew install fzf
+
+# Better find
+brew install fd
+
+# Better cat
+brew install bat
+
+# Command correction
+brew install thefuck
+```
+
+```bash Ubuntu/Debian
+# Add required repositories first
+sudo apt install eza zoxide fzf fd-find bat thefuck
+```
+
+</CodeGroup>
+
+<Tip>
+These tools are configured with aliases in `.zshrc`:
+- `ls` → `eza` with icons (`.zshrc:148`)
+- `cd` → `z` (zoxide) (`.zshrc:153`)
+- `fzf` integrated with `fd` (`.zshrc:158-187`)
+</Tip>
+
+</Step>
+
+<Step title="Install Node Version Manager">
+
+Install NVM for managing Node.js versions:
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+```
+
+The configuration at `.zshrc:115-117` loads NVM automatically:
+
+```bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+```
+
+</Step>
+
+<Step title="Install Bun Runtime">
+
+Install Bun as a fast JavaScript runtime and package manager:
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+Bun configuration is set up at `.zshrc:198-203` with:
+- Shell completions loading
+- `BUN_INSTALL` environment variable
+- PATH configuration
+
+</Step>
+
+</Steps>
+
+## Editor Configuration
+
+<Steps>
+
+<Step title="Install Neovim">
+
+The configuration uses Neovim as the default editor:
+
+<CodeGroup>
+
+```bash Homebrew
+brew install neovim
+```
+
+```bash Ubuntu/Debian
+sudo apt install neovim
+```
+
+</CodeGroup>
+
+<Note>
+Editor aliases are set at `.zshrc:112-113`:
+- `vim` → `nvim`
+- `vi` → `nvim`
+
+The `EDITOR` environment variable is set to `nvim` at `.zshrc:214`.
+</Note>
+
+</Step>
+
+</Steps>
+
+## Clone and Link Configuration Files
+
+<Steps>
+
+<Step title="Clone Your Dotfiles Repository">
+
+Clone your dotfiles to your home directory:
+
+```bash
+git clone https://github.com/yourusername/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+```
+
+</Step>
+
+<Step title="Create Symbolic Links">
+
+Create symlinks for all configuration files:
+
+```bash
+# Zsh configuration
+ln -sf ~/dotfiles/.zshrc ~/.zshrc
+
+# Tmux configuration
+ln -sf ~/dotfiles/.tmux.conf ~/.tmux.conf
+
+# Yazi configuration (create parent directory if needed)
+mkdir -p ~/.config/yazi
+ln -sf ~/dotfiles/.config/yazi/yazi.toml ~/.config/yazi/yazi.toml
+
+# OpenCode agent configuration (if using)
+mkdir -p ~/.config/opencode/agent
+ln -sf ~/dotfiles/.config/opencode/agent/debugging-guide.md ~/.config/opencode/agent/debugging-guide.md
+```
+
+<Warning>
+Backup your existing configuration files before creating symlinks:
+```bash
+cp ~/.zshrc ~/.zshrc.backup
+cp ~/.tmux.conf ~/.tmux.conf.backup
+```
+</Warning>
+
+</Step>
+
+</Steps>
+
+## Post-Installation
+
+<Steps>
+
+<Step title="Configure Powerlevel10k">
+
+Run the configuration wizard to customize your prompt:
+
+```bash
+p10k configure
+```
+
+This creates a `~/.p10k.zsh` file that's sourced at `.zshrc:123`.
+
+</Step>
+
+<Step title="Source Shell Configuration">
+
+Apply the new configuration:
+
+```bash
+source ~/.zshrc
+```
+
+</Step>
+
+<Step title="Install Tmux Plugins">
+
+Launch Tmux and install plugins:
+
+```bash
+tmux
+# Press prefix + I (Ctrl+a then Shift+I)
+```
+
+This installs all plugins defined in `.tmux.conf:40-46`.
+
+</Step>
+
+<Step title="Verify Installation">
+
+Test each tool to ensure proper installation:
+
+```bash
+# Test enhanced ls
+ls
+
+# Test zoxide
+z ~
+
+# Test fzf (Ctrl+R for history, Ctrl+T for files)
+
+# Test Yazi
+y
+
+# Test command correction
+fuck
+
+# Check NVM
+nvm --version
+
+# Check Bun
+bun --version
+
+# Check Neovim
+nvim --version
+```
+
+</Step>
+
+</Steps>
+
+## Key Features Enabled
+
+After installation, you'll have:
+
+- **Enhanced shell history** (`.zshrc:126-132`) with deduplication and verification
+- **History search keybindings** (`.zshrc:136-137`) - Up/Down arrows search history
+- **Custom FZF theme** (`.zshrc:179-187`) with ocean-inspired colors
+- **Tmux prefix** changed to `Ctrl+a` (`.tmux.conf:3`)
+- **Tmux keybindings**:
+  - `|` for horizontal split (`.tmux.conf:8`)
+  - `-` for vertical split (`.tmux.conf:11`)
+  - `Ctrl+a then r` to reload config (`.tmux.conf:15`)
+  - `Alt+e` to clear pane (`.tmux.conf:25`)
+- **Vi mode** in Tmux copy mode (`.tmux.conf:32-37`)
+- **Mouse support** enabled in Tmux (`.tmux.conf:27`)
+- **Yazi** configured with hidden files shown (yazi.toml:15)
+
+<Accordion title="Optional: OpenCode Integration">
+
+If you're using OpenCode, the debugging-guide.md at `.config/opencode/agent/` provides a debugging mentor agent that teaches debugging methodologies rather than providing direct solutions.
+
+The configuration adds OpenCode to your PATH at `.zshrc:196`:
+```bash
+export PATH=/home/magictt/.opencode/bin:$PATH
+```
+
+Update the path to match your username.
+
+</Accordion>
+
+## Troubleshooting
+
+<Accordion title="Command not found errors">
+
+Ensure Homebrew is in your PATH:
+
+```bash
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+```
+
+Add this to your shell profile if not already present.
+
+</Accordion>
+
+<Accordion title="Tmux plugins not loading">
+
+Manually install TPM plugins:
+
+```bash
+~/.tmux/plugins/tpm/bin/install_plugins
+```
+
+</Accordion>
+
+<Accordion title="Powerlevel10k not rendering correctly">
+
+Install a Nerd Font and configure your terminal to use it:
+
+```bash
+brew tap homebrew/cask-fonts
+brew install --cask font-meslo-lg-nerd-font
+```
+
+Set your terminal font to "MesloLGS NF".
+
+</Accordion>
+
+## Next Steps
+
+- Customize your Powerlevel10k prompt with `p10k configure`
+- Explore Tmux keybindings and customize to your preference
+- Configure Yazi themes and keybindings in `~/.config/yazi/`
+- Add your own aliases and functions to `.zshrc`

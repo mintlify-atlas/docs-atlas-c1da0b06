@@ -1,0 +1,317 @@
+---
+title: Tmux Configuration
+description: Complete guide to the Tmux terminal multiplexer configuration including custom keybindings, plugins, and session persistence
+---
+
+## Overview
+
+The `.tmux.conf` configuration creates a productive terminal multiplexer environment with:
+- Custom prefix key for easier access
+- Intuitive pane splitting keybindings
+- Vi-mode keybindings for copy mode
+- Vim-tmux navigation integration
+- Automatic session persistence
+- Powerline theme styling
+
+## Terminal Settings
+
+```tmux .tmux.conf:1
+set -g default-terminal "screen-256color"
+```
+
+```tmux .tmux.conf:28-29
+set -g default-terminal "tmux-256color"
+set -ga terminal-overrides ",xterm-256color:RGB"
+```
+
+Configures 256-color support and true color (RGB) support for modern terminals, enabling rich color schemes in Neovim and other applications.
+
+<Note>
+The configuration sets `default-terminal` twice - the second setting (`tmux-256color`) on line 28 is the effective one, providing better compatibility.
+</Note>
+
+## Prefix Key
+
+```tmux .tmux.conf:3-5
+set -g prefix C-a
+unbind C-b
+bind-key C-a send-prefix
+```
+
+Changes the prefix key from the default `Ctrl+b` to `Ctrl+a`:
+- **More ergonomic**: Easier to reach than `Ctrl+b`
+- **Screen compatibility**: Matches GNU Screen keybindings
+- **Double press**: `Ctrl+a` then `Ctrl+a` sends `Ctrl+a` to the application
+
+<Tip>
+After this change, all tmux commands use `Ctrl+a` instead of `Ctrl+b`. For example, create a new window with `Ctrl+a c`.
+</Tip>
+
+## Window Splitting
+
+```tmux .tmux.conf:7-11
+unbind %
+bind | split-window -h
+
+unbind '"'
+bind - split-window -v
+```
+
+Intuitive keybindings for splitting panes:
+- **`Ctrl+a |`**: Split horizontally (creates a vertical divider)
+- **`Ctrl+a -`**: Split vertically (creates a horizontal divider)
+
+The visual metaphor matches the resulting layout - `|` creates a vertical line, `-` creates a horizontal line.
+
+## Configuration Reload
+
+```tmux .tmux.conf:14-15
+unbind r
+bind r source-file ~/.tmux.conf
+```
+
+Reload the tmux configuration without restarting:
+- Press **`Ctrl+a r`** to reload `~/.tmux.conf`
+- Useful for testing configuration changes
+- Displays "config reloaded" message on success
+
+## Pane Resizing
+
+```tmux .tmux.conf:17-20
+bind -r j resize-pane -D 5
+bind -r k resize-pane -U 5
+bind -r l resize-pane -R 5
+bind -r h resize-pane -L 5
+```
+
+Vi-style keybindings for resizing panes:
+
+| Keybinding | Action | Direction |
+|------------|--------|----------|
+| `Ctrl+a j` | Resize down | ↓ |
+| `Ctrl+a k` | Resize up | ↑ |
+| `Ctrl+a l` | Resize right | → |
+| `Ctrl+a h` | Resize left | ← |
+
+The `-r` flag allows repeating the command without pressing the prefix key again within the repeat timeout.
+
+## Pane Maximize Toggle
+
+```tmux .tmux.conf:22
+bind -r m resize-pane -Z
+```
+
+Press **`Ctrl+a m`** to toggle pane zoom:
+- Maximizes the current pane to full window size
+- Press again to restore original layout
+- Useful for temporary focus on a single pane
+
+## Clear Pane Shortcut
+
+```tmux .tmux.conf:24-25
+# Clear pane with Alt+e
+bind-key -n M-e send-keys "clear" Enter
+```
+
+Press **`Alt+e`** to clear the current pane:
+- No prefix key required (`-n` flag)
+- Sends the `clear` command and executes it
+- Faster than typing `clear` manually
+
+## Mouse Support
+
+```tmux .tmux.conf:27
+set -g mouse on
+```
+
+Enables mouse support for:
+- Selecting panes by clicking
+- Resizing panes by dragging borders
+- Scrolling through pane history
+- Selecting text in copy mode
+- Right-click menu for common operations
+
+<Warning>
+With mouse mode enabled, selecting text may copy to tmux buffer instead of system clipboard. Hold Shift while selecting to use normal terminal selection.
+</Warning>
+
+## Vi Mode Keybindings
+
+<Tabs>
+  <Tab title="Copy Mode">
+    ```tmux .tmux.conf:32
+    set-window-option -g mode-keys vi
+    ```
+
+    Enables vi-style keybindings in copy mode:
+    - **`Ctrl+a [`**: Enter copy mode
+    - **`h/j/k/l`**: Move cursor (vim navigation)
+    - **`w/b`**: Move by words
+    - **`/`**: Search forward
+    - **`?`**: Search backward
+    - **`q`**: Exit copy mode
+  </Tab>
+
+  <Tab title="Text Selection">
+    ```tmux .tmux.conf:34-35
+    bind-key -T copy-mode-vi 'v' send -X begin-selection
+    bind-key -T copy-mode-vi 'y' send -X copy-selection
+    ```
+
+    Vi-style text selection and copying:
+    1. Enter copy mode with **`Ctrl+a [`**
+    2. Navigate to start of text
+    3. Press **`v`** to begin selection (visual mode)
+    4. Navigate to select text
+    5. Press **`y`** to copy (yank)
+    6. Press **`Ctrl+a ]`** to paste
+  </Tab>
+
+  <Tab title="Mouse Integration">
+    ```tmux .tmux.conf:37
+    unbind -T copy-mode-vi MouseDragEnd1Pane
+    ```
+
+    Prevents copy mode from exiting after mouse selection, allowing:
+    - Multiple selections without re-entering copy mode
+    - Adjusting selection with keyboard after mouse selection
+    - More control over the copy workflow
+  </Tab>
+</Tabs>
+
+## Plugin Management (TPM)
+
+```tmux .tmux.conf:39-40
+set -g @plugin 'tmux-plugins/tpm'
+```
+
+[Tmux Plugin Manager](https://github.com/tmux-plugins/tpm) is configured for managing plugins.
+
+**Installation:**
+```bash
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+```
+
+**Usage:**
+- **`Ctrl+a I`**: Install plugins (capital i)
+- **`Ctrl+a U`**: Update plugins (capital u)
+- **`Ctrl+a Alt+u`**: Remove plugins not in list
+
+## Installed Plugins
+
+<Accordion title="vim-tmux-navigator">
+  ```tmux .tmux.conf:43
+  set -g @plugin 'christoomey/vim-tmux-navigator'
+  ```
+
+  Seamless navigation between tmux panes and Vim splits:
+  - **`Ctrl+h`**: Move left
+  - **`Ctrl+j`**: Move down
+  - **`Ctrl+k`**: Move up
+  - **`Ctrl+l`**: Move right
+
+  Works identically whether you're in a Vim split or tmux pane.
+
+  **Requires:** Matching Vim plugin installation
+</Accordion>
+
+<Accordion title="tmux-themepack">
+  ```tmux .tmux.conf:44
+  set -g @plugin 'jimeh/tmux-themepack'
+  ```
+
+  Collection of pre-made themes for tmux status bar styling.
+</Accordion>
+
+<Accordion title="tmux-resurrect">
+  ```tmux .tmux.conf:45
+  set -g @plugin 'tmux-plugins/tmux-resurrect'
+  ```
+
+  Saves and restores tmux sessions:
+  - **`Ctrl+a Ctrl+s`**: Save session
+  - **`Ctrl+a Ctrl+r`**: Restore session
+
+  Persists:
+  - Window and pane layouts
+  - Working directories
+  - Running programs
+</Accordion>
+
+<Accordion title="tmux-continuum">
+  ```tmux .tmux.conf:46
+  set -g @plugin 'tmux-plugins/tmux-continuum'
+  ```
+
+  Automatic session saving (every 15 minutes by default) and restoration on tmux start.
+
+  Works in conjunction with tmux-resurrect to provide seamless persistence.
+</Accordion>
+
+## Theme Configuration
+
+```tmux .tmux.conf:48
+set -g @themepack 'powerline/default/cyan'
+```
+
+Uses the cyan Powerline theme from tmux-themepack:
+- Powerline-style separators
+- Cyan color scheme
+- Clean, modern appearance
+- Shows session name, window list, and system information
+
+## Session Persistence Settings
+
+```tmux .tmux.conf:50-51
+set -g @resurrect-capture-pane-contents 'on'
+set -g @continuum-restore 'on'
+```
+
+<ParamField path="@resurrect-capture-pane-contents" type="boolean" default="on">
+  Saves the actual text content of panes, allowing you to scroll through history after restore
+</ParamField>
+
+<ParamField path="@continuum-restore" type="boolean" default="on">
+  Automatically restores the last saved session when tmux starts
+</ParamField>
+
+<Note>
+With these settings, your tmux sessions persist across system reboots. Simply start tmux after a restart, and your previous layout and programs will be restored.
+</Note>
+
+## TPM Initialization
+
+```tmux .tmux.conf:53
+run '~/.tmux/plugins/tpm/tpm'
+```
+
+Initializes TPM and loads all configured plugins. This line must be at the end of the configuration file.
+
+## Quick Reference
+
+### Essential Keybindings
+
+| Command | Action |
+|---------|--------|
+| `Ctrl+a \|` | Split pane horizontally |
+| `Ctrl+a -` | Split pane vertically |
+| `Ctrl+a h/j/k/l` | Resize panes |
+| `Ctrl+a m` | Maximize/restore pane |
+| `Ctrl+a r` | Reload configuration |
+| `Alt+e` | Clear pane |
+| `Ctrl+a [` | Enter copy mode |
+| `Ctrl+h/j/k/l` | Navigate panes/vim splits |
+| `Ctrl+a Ctrl+s` | Save session |
+| `Ctrl+a Ctrl+r` | Restore session |
+
+### Default Tmux Commands
+
+| Command | Action |
+|---------|--------|
+| `Ctrl+a c` | Create new window |
+| `Ctrl+a n` | Next window |
+| `Ctrl+a p` | Previous window |
+| `Ctrl+a 0-9` | Switch to window number |
+| `Ctrl+a ,` | Rename window |
+| `Ctrl+a d` | Detach from session |
+| `Ctrl+a ?` | Show keybindings |

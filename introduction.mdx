@@ -1,0 +1,144 @@
+---
+title: Introduction
+description: A modern, highly-optimized development environment configuration for developers
+---
+
+## Welcome to Magic Love Korean Dotfiles
+
+A curated collection of development environment configuration files designed to supercharge your terminal workflow. This dotfiles repository brings together the best modern CLI tools with thoughtful customization to create a powerful, efficient development environment.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card
+    title="Zsh with Oh My Zsh"
+    icon="terminal"
+    href="/configuration/zsh"
+  >
+    Powerful shell configuration with Powerlevel10k theme and intelligent plugins
+  </Card>
+  <Card
+    title="Tmux Configuration"
+    icon="window-maximize"
+    href="/configuration/tmux"
+  >
+    Terminal multiplexer setup with vim-style keybindings and plugin management
+  </Card>
+  <Card
+    title="Yazi File Manager"
+    icon="folder-tree"
+    href="/configuration/yazi"
+  >
+    Blazing-fast terminal file manager with rose-pine theme and custom keymaps
+  </Card>
+  <Card
+    title="Modern CLI Tools"
+    icon="wrench"
+    href="/reference/tools"
+  >
+    Integration with eza, zoxide, fzf, fd, bat, and more productivity tools
+  </Card>
+  <Card
+    title="FZF Integration"
+    icon="magnifying-glass"
+    href="/guides/shell-setup"
+  >
+    Fuzzy finder with custom color scheme and fd backend for blazing-fast search
+  </Card>
+  <Card
+    title="OpenCode Agent"
+    icon="robot"
+    href="/configuration/opencode"
+  >
+    Custom debugging agent configuration for enhanced development assistance
+  </Card>
+</CardGroup>
+
+## What's Included
+
+This repository contains configuration files for:
+
+- **Shell Environment**: Zsh configuration with Oh My Zsh framework, Powerlevel10k theme, and productivity-focused plugins
+- **Terminal Multiplexer**: Tmux setup with custom keybindings, theme, and TPM plugin management
+- **File Manager**: Yazi configuration with rose-pine theme, advanced keymaps, and optimized settings
+- **CLI Tools**: Integration with modern command-line tools including eza (better ls), zoxide (better cd), fzf (fuzzy finder), fd (better find), and bat (better cat)
+- **Development Tools**: Custom OpenCode agent for debugging assistance and enhanced development workflows
+
+## Why Use These Dotfiles?
+
+<AccordionGroup>
+  <Accordion title="Productivity Boost">
+    Every configuration is optimized for developer productivity. Features like intelligent history search, fuzzy finding, directory jumping, and syntax-highlighted file viewing save you hours of time.
+  </Accordion>
+  <Accordion title="Modern Toolchain">
+    Built with modern, actively-maintained tools written in Rust and Go. Fast, reliable, and feature-rich replacements for traditional Unix utilities.
+  </Accordion>
+  <Accordion title="Thoughtful Defaults">
+    Carefully chosen settings that balance power and usability. Vim-style keybindings, smart completion, and intuitive navigation patterns.
+  </Accordion>
+  <Accordion title="Beautiful Design">
+    Cohesive color scheme across all tools with the custom FZF theme and rose-pine palette. Your terminal will look as good as it works.
+  </Accordion>
+</AccordionGroup>
+
+## Quick Start
+
+Get up and running in minutes:
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/Magiclovekorean/dotfiles.git ~/dotfiles
+    ```
+  </Step>
+  <Step title="Install dependencies">
+    Install the required tools and frameworks. See the [Installation](/installation) guide for detailed instructions.
+  </Step>
+  <Step title="Create symlinks">
+    Link the configuration files to your home directory:
+    ```bash
+    ln -s ~/dotfiles/.zshrc ~/.zshrc
+    ln -s ~/dotfiles/.tmux.conf ~/.tmux.conf
+    ln -s ~/dotfiles/.config ~/.config
+    ```
+  </Step>
+  <Step title="Start using">
+    Restart your shell or source the configuration:
+    ```bash
+    source ~/.zshrc
+    ```
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Installation Guide"
+    icon="download"
+    href="/installation"
+  >
+    Complete installation instructions for all dependencies
+  </Card>
+  <Card
+    title="Configuration Overview"
+    icon="gear"
+    href="/configuration/zsh"
+  >
+    Learn about each configuration file in detail
+  </Card>
+  <Card
+    title="Keybindings Reference"
+    icon="keyboard"
+    href="/guides/keybindings"
+  >
+    Master the custom keybindings and shortcuts
+  </Card>
+  <Card
+    title="Customization Guide"
+    icon="palette"
+    href="/guides/customization"
+  >
+    Make these dotfiles your own
+  </Card>
+</CardGroup>

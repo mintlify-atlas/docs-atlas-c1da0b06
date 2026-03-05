@@ -1,0 +1,478 @@
+---
+title: Plugin Reference
+description: Comprehensive guide to all Zsh, Tmux, and Yazi plugins configured in the dotfiles
+---
+
+This dotfiles configuration uses carefully selected plugins to enhance shell productivity, terminal multiplexing, and file management.
+
+## Zsh Plugins
+
+### Overview
+
+The configuration uses three main Zsh plugins for enhanced shell functionality.
+
+<CardGroup cols={3}>
+  <Card title="git" icon="git" href="https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git">
+    Git command shortcuts and aliases
+  </Card>
+  
+  <Card title="zsh-autosuggestions" icon="wand-sparkles" href="https://github.com/zsh-users/zsh-autosuggestions">
+    Fish-like command suggestions
+  </Card>
+  
+  <Card title="zsh-syntax-highlighting" icon="highlighter" href="https://github.com/zsh-users/zsh-syntax-highlighting">
+    Real-time command syntax highlighting
+  </Card>
+</CardGroup>
+
+---
+
+### git (Oh My Zsh)
+
+**Configuration (from .zshrc line 80):**
+```bash
+plugins=(git)
+```
+
+**Purpose:**
+Provides over 100 Git command aliases and shortcuts for faster Git operations.
+
+**Popular Aliases:**
+- `ga` → `git add`
+- `gcmsg` → `git commit -m`
+- `gco` → `git checkout`
+- `gst` → `git status`
+- `gp` → `git push`
+- `gl` → `git pull`
+- `glog` → `git log --oneline --decorate --graph`
+- `gd` → `git diff`
+
+**Full Alias List:**
+```bash
+alias | grep git
+```
+
+<Tip>
+The git plugin is part of Oh My Zsh core plugins and requires no additional installation.
+</Tip>
+
+---
+
+### zsh-autosuggestions
+
+**Installation Location:**
+```
+/home/linuxbrew/.linuxbrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+```
+
+**Configuration (from .zshrc lines 138-141):**
+```bash
+source /home/linuxbrew/.linuxbrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#b3b3b3'
+```
+
+**Purpose:**
+Suggests commands as you type based on your command history. Press `→` (right arrow) to accept a suggestion.
+
+**Custom Configuration:**
+- **Highlight color:** Light gray (`#b3b3b3`) for subtle, non-intrusive suggestions
+- **History keybindings:** `↑` and `↓` for history search backward/forward (lines 136-137)
+
+**Usage:**
+1. Start typing a command
+2. Ghost text appears showing the suggested completion
+3. Press `→` to accept the full suggestion
+4. Press `Alt+→` to accept one word at a time
+
+**Install:**
+```bash
+brew install zsh-autosuggestions
+```
+
+---
+
+### zsh-syntax-highlighting
+
+**Installation Location:**
+```
+/home/linuxbrew/.linuxbrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+```
+
+**Configuration (from .zshrc line 143):**
+```bash
+source /home/linuxbrew/.linuxbrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+```
+
+**Purpose:**
+Provides real-time syntax highlighting for commands as you type, helping identify typos and errors before execution.
+
+**Highlighting Features:**
+- **Green:** Valid commands
+- **Red:** Invalid commands or typos
+- **Blue:** Command options and flags
+- **Yellow:** Strings and paths
+- **Magenta:** Aliases
+
+**Install:**
+```bash
+brew install zsh-syntax-highlighting
+```
+
+<Note>
+This plugin must be sourced at the end of `.zshrc` to work correctly.
+</Note>
+
+---
+
+## Tmux Plugins
+
+### Overview
+
+All Tmux plugins are managed by TPM (Tmux Plugin Manager) and configured in `.tmux.conf`.
+
+<Accordion title="tmux-plugins/tpm" icon="puzzle-piece">
+  **Repository:** https://github.com/tmux-plugins/tpm
+  
+  **Configuration (line 40):**
+  ```bash
+  set -g @plugin 'tmux-plugins/tpm'
+  ```
+  
+  **Purpose:**
+  The plugin manager itself. Required for all other plugins.
+  
+  **Key Bindings:**
+  - `Ctrl+a I` - Install plugins
+  - `Ctrl+a U` - Update plugins
+  - `Ctrl+a alt+u` - Uninstall plugins not in config
+  
+  **Installation:**
+  ```bash
+  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+  ```
+</Accordion>
+
+<Accordion title="christoomey/vim-tmux-navigator" icon="arrows-up-down-left-right">
+  **Repository:** https://github.com/christoomey/vim-tmux-navigator
+  
+  **Configuration (line 43):**
+  ```bash
+  set -g @plugin 'christoomey/vim-tmux-navigator'
+  ```
+  
+  **Purpose:**
+  Seamless navigation between tmux panes and vim/nvim splits using consistent keybindings.
+  
+  **Key Bindings:**
+  - `Ctrl+h` - Move left
+  - `Ctrl+j` - Move down
+  - `Ctrl+k` - Move up
+  - `Ctrl+l` - Move right
+  
+  **Features:**
+  - Works across tmux panes and Neovim splits
+  - Automatic detection of vim/nvim processes
+  - No mental overhead switching between pane types
+  
+  <Tip>
+  Requires corresponding Neovim plugin for full functionality.
+  </Tip>
+</Accordion>
+
+<Accordion title="jimeh/tmux-themepack" icon="palette">
+  **Repository:** https://github.com/jimeh/tmux-themepack
+  
+  **Configuration (lines 44, 48):**
+  ```bash
+  set -g @plugin 'jimeh/tmux-themepack'
+  set -g @themepack 'powerline/default/cyan'
+  ```
+  
+  **Purpose:**
+  Provides beautiful, pre-configured themes for tmux status bars.
+  
+  **Active Theme:** `powerline/default/cyan`
+  - Cyan color scheme
+  - Powerline symbols
+  - Shows: session name, window list, hostname, date/time
+  - Clean, professional appearance
+  
+  **Available Themes:**
+  - `basic`
+  - `powerline/default/{blue,cyan,gray,green,magenta,orange,red,yellow}`
+  - `powerline/double/{blue,cyan,gray,green,magenta,orange,red,yellow}`
+  - `powerline/block/{blue,cyan,gray,green,magenta,orange,red,yellow}`
+  
+  **Change Theme:**
+  Edit the `@themepack` variable in `.tmux.conf` and reload:
+  ```bash
+  tmux source-file ~/.tmux.conf
+  ```
+</Accordion>
+
+<Accordion title="tmux-plugins/tmux-resurrect" icon="floppy-disk">
+  **Repository:** https://github.com/tmux-plugins/tmux-resurrect
+  
+  **Configuration (lines 45, 50):**
+  ```bash
+  set -g @plugin 'tmux-plugins/tmux-resurrect'
+  set -g @resurrect-capture-pane-contents 'on'
+  ```
+  
+  **Purpose:**
+  Persists tmux sessions across system restarts. Saves and restores:
+  - All sessions, windows, and panes
+  - Window layouts
+  - Running programs
+  - Pane contents (when enabled)
+  
+  **Custom Configuration:**
+  - **Pane contents capture:** Enabled - saves the scrollback buffer of each pane
+  
+  **Key Bindings:**
+  - `Ctrl+a Ctrl+s` - Save current session
+  - `Ctrl+a Ctrl+r` - Restore saved session
+  
+  **Usage:**
+  ```bash
+  # Before restart
+  Ctrl+a Ctrl+s
+  
+  # After restart
+  tmux
+  Ctrl+a Ctrl+r
+  ```
+  
+  <Warning>
+  Large scrollback buffers may increase save file size when pane contents capture is enabled.
+  </Warning>
+</Accordion>
+
+<Accordion title="tmux-plugins/tmux-continuum" icon="rotate">
+  **Repository:** https://github.com/tmux-plugins/tmux-continuum
+  
+  **Configuration (lines 46, 51):**
+  ```bash
+  set -g @plugin 'tmux-plugins/tmux-continuum'
+  set -g @continuum-restore 'on'
+  ```
+  
+  **Purpose:**
+  Extends tmux-resurrect with automatic session saving and restoration.
+  
+  **Custom Configuration:**
+  - **Auto-restore:** Enabled - automatically restores last saved session on tmux start
+  
+  **Features:**
+  - Automatic session saving every 15 minutes
+  - Automatic session restore on tmux server start
+  - Works seamlessly with tmux-resurrect
+  - No manual intervention required
+  
+  **Behavior:**
+  1. Saves your session automatically every 15 minutes
+  2. When you start tmux, your last session is automatically restored
+  3. All windows, panes, and layouts are preserved
+  
+  <Tip>
+  With continuum enabled, you never need to manually save/restore sessions. Just start tmux and everything is as you left it.
+  </Tip>
+</Accordion>
+
+---
+
+## Yazi Plugins
+
+### Overview
+
+Yazi plugins extend file manager functionality with external tools integration.
+
+<CardGroup cols={2}>
+  <Card title="fzf" icon="search" href="https://github.com/junegunn/fzf">
+    Fuzzy file finding within Yazi
+  </Card>
+  
+  <Card title="zoxide" icon="compass" href="https://github.com/ajeetdsouza/zoxide">
+    Smart directory jumping in Yazi
+  </Card>
+</CardGroup>
+
+---
+
+### fzf Plugin
+
+**Configuration (from keymap.toml line 91):**
+```toml
+{ on = "z", run = "plugin fzf", desc = "Jump to a file/directory via fzf" }
+```
+
+**Purpose:**
+Integrates fzf fuzzy finder directly into Yazi for fast file/directory navigation.
+
+**Usage:**
+1. Press `z` in Yazi
+2. Type to fuzzy search files and directories
+3. Use `↑`/`↓` to navigate results
+4. Press `Enter` to jump to selected item
+
+**Features:**
+- Searches in current directory and subdirectories
+- Real-time fuzzy matching
+- Keyboard-driven selection
+- Fast performance on large directories
+
+<Tip>
+Combine with fd for lightning-fast searches that respect .gitignore.
+</Tip>
+
+---
+
+### zoxide Plugin
+
+**Configuration (from keymap.toml line 92):**
+```toml
+{ on = "Z", run = "plugin zoxide", desc = "Jump to a directory via zoxide" }
+```
+
+**Purpose:**
+Leverages zoxide's smart directory database for intelligent directory jumping within Yazi.
+
+**Usage:**
+1. Press `Z` (shift+z) in Yazi
+2. Type partial directory name
+3. zoxide ranks results by frequency/recency
+4. Select and jump to directory
+
+**Features:**
+- Learns from your navigation patterns
+- Frecency-based ranking (frequency + recency)
+- No need for full paths
+- Works across your entire filesystem
+
+**Example:**
+```
+Type: "proj"  →  Jumps to ~/work/projects/
+Type: "dot"   →  Jumps to ~/dotfiles/
+```
+
+<Note>
+zoxide must be installed and initialized in your shell for this plugin to work.
+</Note>
+
+---
+
+## Plugin Management
+
+### Installing Zsh Plugins
+
+**Via Homebrew:**
+```bash
+brew install zsh-autosuggestions zsh-syntax-highlighting
+```
+
+**Manual Installation:**
+```bash
+# Clone to custom plugins directory
+git clone https://github.com/zsh-users/zsh-autosuggestions \
+  ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+
+git clone https://github.com/zsh-users/zsh-syntax-highlighting \
+  ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+```
+
+**Reload Configuration:**
+```bash
+source ~/.zshrc
+```
+
+---
+
+### Installing Tmux Plugins
+
+**Initial Setup:**
+```bash
+# Install TPM
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+
+# Start tmux
+tmux
+
+# Install plugins
+Ctrl+a I
+```
+
+**Adding New Plugins:**
+1. Add plugin line to `.tmux.conf`:
+   ```bash
+   set -g @plugin 'username/plugin-name'
+   ```
+2. Reload tmux config: `Ctrl+a r`
+3. Install new plugins: `Ctrl+a I`
+
+**Updating Plugins:**
+```bash
+Ctrl+a U
+```
+
+---
+
+### Yazi Plugin Setup
+
+**Prerequisites:**
+```bash
+brew install fzf fd zoxide
+```
+
+**Initialize zoxide:**
+```bash
+eval "$(zoxide init zsh)"
+```
+
+**Yazi Configuration:**
+Plugins are configured via keybindings in `~/.config/yazi/keymap.toml`. No additional installation required.
+
+---
+
+## Plugin Dependencies
+
+### Summary Table
+
+| Plugin | Depends On | Optional Dependencies |
+|--------|------------|----------------------|
+| git | Oh My Zsh | - |
+| zsh-autosuggestions | Zsh 5.0.2+ | - |
+| zsh-syntax-highlighting | Zsh 4.3.11+ | - |
+| vim-tmux-navigator | Tmux 1.8+ | Neovim plugin |
+| tmux-themepack | Tmux | Powerline fonts |
+| tmux-resurrect | Tmux | - |
+| tmux-continuum | tmux-resurrect | - |
+| fzf (Yazi) | fzf, Yazi | fd |
+| zoxide (Yazi) | zoxide, Yazi | - |
+
+---
+
+## Performance Tips
+
+<Tip>
+**Zsh Plugin Order Matters:**
+Load `zsh-syntax-highlighting` last for best performance and compatibility.
+</Tip>
+
+<Tip>
+**Tmux Continuum:**
+If auto-restore causes startup delays, disable it and use manual resurrect instead:
+```bash
+set -g @continuum-restore 'off'
+```
+</Tip>
+
+<Warning>
+**Too Many Plugins Slow Shell Startup:**
+Each plugin adds startup time. Only use plugins you actively benefit from.
+</Warning>
+
+---
+
+## Troubleshooting Plugins
+
+See the [Troubleshooting Guide](/reference/troubleshooting) for plugin-specific issues.

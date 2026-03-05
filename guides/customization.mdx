@@ -1,0 +1,707 @@
+---
+title: Customization Guide
+description: Learn how to customize and extend your dotfiles configuration
+---
+
+This guide shows you how to customize various aspects of the dotfiles to match your preferences and workflow.
+
+## Customizing Zsh
+
+### Adding Custom Aliases
+
+Oh My Zsh encourages organizing custom configurations in separate files.
+
+<Steps>
+
+<Step title="Create a custom aliases file">
+
+Create a file in the Oh My Zsh custom directory:
+
+```bash
+touch $ZSH_CUSTOM/aliases.zsh
+```
+
+</Step>
+
+<Step title="Add your aliases">
+
+Edit the file and add your custom aliases:
+
+```bash
+# $ZSH_CUSTOM/aliases.zsh
+
+# Git aliases
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log --oneline --graph --decorate'
+
+# Directory shortcuts
+alias projects='cd ~/Projects'
+alias docs='cd ~/Documents'
+
+# Docker aliases
+alias dps='docker ps'
+alias dimg='docker images'
+alias dcu='docker-compose up'
+alias dcd='docker-compose down'
+
+# System aliases
+alias update='sudo apt update && sudo apt upgrade'
+alias ports='netstat -tulanp'
+```
+
+</Step>
+
+<Step title="Reload your shell">
+
+```bash
+source ~/.zshrc
+```
+
+Your aliases are now active!
+
+</Step>
+
+</Steps>
+
+<Tip>
+You can create multiple files for different categories: `git.zsh`, `docker.zsh`, `system.zsh`, etc. Oh My Zsh automatically loads all `.zsh` files in `$ZSH_CUSTOM/`.
+</Tip>
+
+### Adding Custom Functions
+
+Functions are more powerful than aliases and can accept arguments.
+
+<Accordion title="Useful Custom Functions">
+
+```bash
+# $ZSH_CUSTOM/functions.zsh
+
+# Create directory and cd into it
+mkcd() {
+  mkdir -p "$1" && cd "$1"
+}
+
+# Extract any archive
+extract() {
+  if [ -f $1 ] ; then
+    case $1 in
+      *.tar.bz2)   tar xjf $1     ;;
+      *.tar.gz)    tar xzf $1     ;;
+      *.bz2)       bunzip2 $1     ;;
+      *.rar)       unrar e $1     ;;
+      *.gz)        gunzip $1      ;;
+      *.tar)       tar xf $1      ;;
+      *.tbz2)      tar xjf $1     ;;
+      *.tgz)       tar xzf $1     ;;
+      *.zip)       unzip $1       ;;
+      *.Z)         uncompress $1  ;;
+      *.7z)        7z x $1        ;;
+      *)     echo "'$1' cannot be extracted via extract()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+
+# Find and kill process by name
+kp() {
+  ps aux | grep -v grep | grep "$@" | awk '{print $2}' | xargs kill
+}
+
+# Quick backup of a file
+backup() {
+  cp "$1" "$1.bak-$(date +%Y%m%d-%H%M%S)"
+}
+
+# Create a quick server in current directory
+serve() {
+  port="${1:-8000}"
+  python3 -m http.server "$port"
+}
+```
+
+</Accordion>
+
+### Adding Oh My Zsh Plugins
+
+Oh My Zsh comes with many built-in plugins.
+
+<Tabs>
+  <Tab title="Enable Plugins">
+    Edit `~/.zshrc` and add plugins to the plugins array:
+
+    ```bash
+    plugins=(
+      git                # Git aliases and functions
+      docker             # Docker completion
+      docker-compose     # Docker Compose completion
+      npm                # npm completion
+      node               # Node.js utilities
+      python             # Python utilities
+      sudo               # Press ESC twice to add sudo
+      web-search         # Search from terminal (google, bing, etc.)
+      copypath           # Copy current path to clipboard
+      copyfile           # Copy file contents to clipboard
+      jsontools          # JSON utilities
+      colored-man-pages  # Colorized man pages
+    )
+    ```
+  </Tab>
+  <Tab title="Install External Plugins">
+    Install custom plugins to `$ZSH_CUSTOM/plugins/`:
+
+    ```bash
+    # Install zsh-you-should-use (suggests aliases)
+    git clone https://github.com/MichaelAquilina/zsh-you-should-use.git \
+      $ZSH_CUSTOM/plugins/you-should-use
+
+    # Install zsh-history-substring-search
+    git clone https://github.com/zsh-users/zsh-history-substring-search \
+      $ZSH_CUSTOM/plugins/zsh-history-substring-search
+    ```
+
+    Then add to plugins array:
+    ```bash
+    plugins=(git you-should-use zsh-history-substring-search)
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+Too many plugins can slow down shell startup. Only enable plugins you actually use.
+</Note>
+
+---
+
+## Customizing Powerlevel10k
+
+### Running the Configuration Wizard
+
+The easiest way to customize Powerlevel10k:
+
+```bash
+p10k configure
+```
+
+This interactive wizard lets you:
+- Choose prompt style (lean, classic, rainbow, pure)
+- Configure prompt elements
+- Set character set (Unicode, ASCII)
+- Adjust prompt spacing
+- Enable/disable transient prompt
+
+### Manual Configuration
+
+<Accordion title="Edit Powerlevel10k Configuration">
+
+The configuration is stored in `~/.p10k.zsh`. Common customizations:
+
+```bash
+# Show time in prompt
+typeset -g POWERLEVEL9K_TIME_FORMAT='%D{%H:%M:%S}'
+
+# Shorten directory path
+typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=truncate_to_last
+typeset -g POWERLEVEL9K_SHORTEN_DIR_LENGTH=2
+
+# Customize prompt elements order (left side)
+typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
+  os_icon
+  dir
+  vcs
+  newline
+  prompt_char
+)
+
+# Customize prompt elements order (right side)
+typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
+  status
+  command_execution_time
+  background_jobs
+  time
+)
+
+# Change prompt colors
+typeset -g POWERLEVEL9K_DIR_FOREGROUND=blue
+typeset -g POWERLEVEL9K_DIR_BACKGROUND=none
+```
+
+</Accordion>
+
+---
+
+## Customizing Tmux
+
+### Changing the Theme
+
+The dotfiles use the Powerline cyan theme. To change it:
+
+<Steps>
+
+<Step title="Browse available themes">
+
+Available themes in tmux-themepack:
+- `powerline/default/cyan`
+- `powerline/default/blue`
+- `powerline/default/green`
+- `powerline/default/magenta`
+- `powerline/block/cyan`
+- `basic`
+- `double/cyan`
+
+</Step>
+
+<Step title="Update .tmux.conf">
+
+Edit `~/.tmux.conf` and change the theme:
+
+```bash
+set -g @themepack 'powerline/default/blue'  # Change to blue
+```
+
+</Step>
+
+<Step title="Reload configuration">
+
+In tmux, press: `Ctrl+a` then `r`
+
+</Step>
+
+</Steps>
+
+### Adding Custom Keybindings
+
+<Accordion title="Example Custom Bindings">
+
+Add to `~/.tmux.conf`:
+
+```bash
+# Quick pane switching without prefix
+bind -n M-h select-pane -L
+bind -n M-l select-pane -R
+bind -n M-k select-pane -U
+bind -n M-j select-pane -D
+
+# Create new window in current path
+bind c new-window -c "#{pane_current_path}"
+
+# Split windows in current path
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+
+# Synchronize panes
+bind S set-window-option synchronize-panes\; display-message "Sync: #{?pane_synchronized,ON,OFF}"
+
+# Kill pane without confirmation
+bind x kill-pane
+
+# Switch windows with Alt+number
+bind -n M-1 select-window -t 1
+bind -n M-2 select-window -t 2
+bind -n M-3 select-window -t 3
+```
+
+Reload with: `Ctrl+a` then `r`
+
+</Accordion>
+
+### Customizing Status Bar
+
+```bash
+# Add to ~/.tmux.conf
+
+# Status bar position
+set -g status-position top  # or 'bottom'
+
+# Status bar update interval
+set -g status-interval 5
+
+# Window status format
+setw -g window-status-format ' #I:#W '
+setw -g window-status-current-format ' #I:#W '
+
+# Custom status left
+set -g status-left-length 40
+set -g status-left '#[fg=green]#S #[fg=blue]#I:#P '
+
+# Custom status right
+set -g status-right-length 80
+set -g status-right '#[fg=yellow]#(uptime | cut -d ":" -f 4-) #[fg=cyan]%Y-%m-%d %H:%M'
+```
+
+---
+
+## Customizing Yazi
+
+### Changing the Theme
+
+The dotfiles use the `rose-pine` theme.
+
+<Tabs>
+  <Tab title="Change Theme">
+    Edit `~/.config/yazi/theme.toml`:
+
+    ```toml
+    [flavour]
+    dark = "tokyo-night"    # or "catppuccin-mocha", "dracula", etc.
+    light = "catppuccin-latte"
+    ```
+
+    Available themes at: https://github.com/yazi-rs/flavors
+  </Tab>
+  <Tab title="Install New Themes">
+    ```bash
+    # Clone a theme repository
+    git clone https://github.com/yazi-rs/themes ~/.config/yazi/flavors
+
+    # Or download individual themes
+    mkdir -p ~/.config/yazi/flavors
+    curl -o ~/.config/yazi/flavors/catppuccin-mocha.yazi \
+      https://raw.githubusercontent.com/yazi-rs/flavors/main/catppuccin-mocha.yazi
+    ```
+  </Tab>
+</Tabs>
+
+### Customizing Keybindings
+
+<Accordion title="Example: Add Custom Keybindings">
+
+Edit `~/.config/yazi/keymap.toml`. Add to the `[mgr]` section:
+
+```toml
+[mgr]
+keymap = [
+  # ... existing keybindings ...
+
+  # Quick navigation to common directories
+  { on = [ "g", "p" ], run = "cd ~/Projects", desc = "Go to Projects" },
+  { on = [ "g", "w" ], run = "cd ~/work", desc = "Go to work" },
+  { on = [ "g", "t" ], run = "cd /tmp", desc = "Go to /tmp" },
+
+  # Bulk rename with editor
+  { on = "R", run = "shell nvim $(mktemp) # bulk rename", desc = "Bulk rename" },
+
+  # Archive operations
+  { on = [ "z", "z" ], run = "shell tar czf archive.tar.gz %s", desc = "Create tar.gz" },
+
+  # Git operations
+  { on = [ "g", "s" ], run = "shell git status", desc = "Git status" },
+  { on = [ "g", "l" ], run = "shell git log --oneline", desc = "Git log" },
+]
+```
+
+</Accordion>
+
+### Adding Custom Opener Rules
+
+Control how different file types open.
+
+<Accordion title="Custom Opener Configuration">
+
+Edit `~/.config/yazi/yazi.toml`:
+
+```toml
+[opener]
+# Add custom openers
+code = [
+  { run = 'code "$@"', orphan = true, desc = "Open in VS Code" }
+]
+idea = [
+  { run = 'idea "$@"', orphan = true, desc = "Open in IntelliJ" }
+]
+browser = [
+  { run = 'firefox "$@"', orphan = true, desc = "Open in Firefox" }
+]
+
+[open]
+rules = [
+  # Open TypeScript/JavaScript files in VS Code
+  { mime = "application/typescript", use = ["code", "edit", "reveal"] },
+  { mime = "application/javascript", use = ["code", "edit", "reveal"] },
+
+  # Open HTML files in browser
+  { mime = "text/html", use = ["browser", "edit", "reveal"] },
+
+  # Open Markdown in VS Code
+  { mime = "text/markdown", use = ["code", "edit", "reveal"] },
+
+  # Open PDFs in browser
+  { mime = "application/pdf", use = ["browser", "reveal"] },
+
+  # ... keep existing rules ...
+]
+```
+
+</Accordion>
+
+### Customizing Manager Behavior
+
+Edit `~/.config/yazi/yazi.toml`:
+
+```toml
+[mgr]
+ratio = [ 1, 4, 3 ]          # Adjust pane widths (parent:current:preview)
+sort_by = "modified"         # Or "alphabetical", "size", "extension"
+sort_reverse = true          # Newest first
+show_hidden = true           # Show hidden files by default
+linemode = "size"            # Show file sizes by default
+scrolloff = 8                # Cursor padding from edges
+```
+
+---
+
+## Customizing FZF Colors
+
+Change the FZF color scheme to match your theme.
+
+<Accordion title="Custom FZF Themes">
+
+<Tabs>
+  <Tab title="Catppuccin Mocha">
+    ```bash
+    # Add to ~/.zshrc
+    export FZF_DEFAULT_OPTS="\
+    --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
+    --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
+    --color=marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
+    ```
+  </Tab>
+  <Tab title="Tokyo Night">
+    ```bash
+    # Add to ~/.zshrc
+    export FZF_DEFAULT_OPTS="\
+    --color=fg:#c0caf5,bg:#1a1b26,hl:#bb9af7 \
+    --color=fg+:#c0caf5,bg+:#292e42,hl+:#7dcfff \
+    --color=info:#7aa2f7,prompt:#7dcfff,pointer:#7dcfff \
+    --color=marker:#9ece6a,spinner:#9ece6a,header:#9ece6a"
+    ```
+  </Tab>
+  <Tab title="Dracula">
+    ```bash
+    # Add to ~/.zshrc
+    export FZF_DEFAULT_OPTS="\
+    --color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9 \
+    --color=fg+:#f8f8f2,bg+:#44475a,hl+:#bd93f9 \
+    --color=info:#ffb86c,prompt:#50fa7b,pointer:#ff79c6 \
+    --color=marker:#ff79c6,spinner:#ffb86c,header:#6272a4"
+    ```
+  </Tab>
+  <Tab title="Current (Custom Blue)">
+    ```bash
+    # Current configuration
+    fg="#CBE0F0"
+    bg="#011628"
+    bg_highlight="#143652"
+    purple="#B388FF"
+    blue="#06BCE4"
+    cyan="#2CF9ED"
+
+    export FZF_DEFAULT_OPTS="--color=fg:${fg},bg:${bg},hl:${purple},fg+:${fg},bg+:${bg_highlight},hl+:${purple},info:${blue},prompt:${cyan},pointer:${cyan},marker:${cyan},spinner:${cyan},header:${cyan}"
+    ```
+  </Tab>
+</Tabs>
+
+</Accordion>
+
+---
+
+## Environment Variables
+
+### Custom Environment Configuration
+
+Create a separate file for environment variables:
+
+```bash
+# $ZSH_CUSTOM/environment.zsh
+
+# Default editor
+export EDITOR=nvim
+export VISUAL=nvim
+
+# Language and locale
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
+# Development tools
+export GOPATH=$HOME/go
+export CARGO_HOME=$HOME/.cargo
+export RUSTUP_HOME=$HOME/.rustup
+
+# Application settings
+export HOMEBREW_NO_ANALYTICS=1
+export DOCKER_BUILDKIT=1
+
+# Custom paths
+export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$GOPATH/bin:$PATH"
+export PATH="$CARGO_HOME/bin:$PATH"
+
+# API keys (consider using a secrets manager for sensitive data)
+export OPENAI_API_KEY="your-key-here"
+```
+
+<Warning>
+Never commit API keys or sensitive data to git repositories. Use environment variables or secret management tools.
+</Warning>
+
+---
+
+## Best Practices for Personal Forks
+
+<Steps>
+
+<Step title="Fork and clone">
+
+Fork the repository to your GitHub account and clone it:
+
+```bash
+git clone https://github.com/yourusername/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+```
+
+</Step>
+
+<Step title="Create a personal branch">
+
+```bash
+git checkout -b personal
+```
+
+Keep all personal customizations on this branch.
+
+</Step>
+
+<Step title="Keep main branch clean">
+
+The `main` branch should track upstream changes:
+
+```bash
+# Add upstream remote
+git remote add upstream https://github.com/original/dotfiles.git
+
+# Update main branch
+git checkout main
+git pull upstream main
+```
+
+</Step>
+
+<Step title="Merge upstream updates">
+
+Periodically merge updates into your personal branch:
+
+```bash
+git checkout personal
+git merge main
+# Resolve any conflicts
+```
+
+</Step>
+
+<Step title="Use separate files for customizations">
+
+Instead of editing main config files, add customizations in separate files:
+
+- `$ZSH_CUSTOM/*.zsh` for Zsh
+- `~/.tmux.conf.local` (if supported)
+- `~/.config/yazi/custom/` directory
+
+This makes merging upstream changes easier.
+
+</Step>
+
+<Step title="Document your changes">
+
+Keep a `PERSONAL.md` file documenting your customizations:
+
+```markdown
+# Personal Customizations
+
+## Zsh
+- Added git aliases in $ZSH_CUSTOM/git.zsh
+- Custom functions in $ZSH_CUSTOM/functions.zsh
+
+## Tmux
+- Changed prefix to Ctrl+s
+- Added custom pane navigation
+
+## Yazi
+- Added work directory shortcuts
+- Changed theme to tokyo-night
+```
+
+</Step>
+
+</Steps>
+
+<Tip>
+Consider using tools like [chezmoi](https://www.chezmoi.io/) or [yadm](https://yadm.io/) for more advanced dotfile management with templating and machine-specific configurations.
+</Tip>
+
+---
+
+## Testing Your Changes
+
+Always test configuration changes before committing:
+
+```bash
+# Test Zsh changes in a new shell
+zsh -f  # Start without loading .zshrc
+source ~/.zshrc  # Then source it manually
+
+# Test Tmux changes
+tmux new -s test  # Create test session
+# Press Ctrl+a then r to reload config
+
+# Test Yazi changes
+y  # Launch Yazi and test keybindings
+```
+
+## Troubleshooting
+
+<Accordion title="Common Issues">
+
+### Zsh slow startup
+
+```bash
+# Profile startup time
+time zsh -i -c exit
+
+# Identify slow plugins
+for plugin in $plugins; do
+  echo "Loading $plugin"
+  time source $ZSH/plugins/$plugin/$plugin.plugin.zsh
+done
+```
+
+### Tmux keybinding conflicts
+
+```bash
+# List all bindings
+tmux list-keys
+
+# Check specific binding
+tmux list-keys | grep "C-a"
+```
+
+### Yazi not launching
+
+```bash
+# Check if yazi is installed
+which yazi
+
+# Check configuration syntax
+yazi --check
+```
+
+</Accordion>
+
+## Next Steps
+
+- Explore the [Shell Setup](/guides/shell-setup) guide for installation instructions
+- Check the [Keybindings](/guides/keybindings) reference for all shortcuts
+- Share your customizations with the community!

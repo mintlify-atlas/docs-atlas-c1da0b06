@@ -1,0 +1,461 @@
+---
+title: CLI Tools Reference
+description: Complete reference for all integrated CLI tools in the dotfiles
+---
+
+This dotfiles repository integrates a comprehensive suite of modern CLI tools to enhance your terminal experience.
+
+## Core Tools
+
+<CardGroup cols={2}>
+  <Card title="Oh My Zsh" icon="terminal" href="https://ohmyz.sh">
+    Framework for managing Zsh configuration with plugins and themes
+  </Card>
+  
+  <Card title="Powerlevel10k" icon="bolt" href="https://github.com/romkatv/powerlevel10k">
+    Fast and customizable Zsh theme with rich visual feedback
+  </Card>
+  
+  <Card title="Tmux" icon="window" href="https://github.com/tmux/tmux">
+    Terminal multiplexer for managing multiple terminal sessions
+  </Card>
+  
+  <Card title="TPM" icon="puzzle-piece" href="https://github.com/tmux-plugins/tpm">
+    Tmux Plugin Manager for installing and managing tmux plugins
+  </Card>
+  
+  <Card title="Yazi" icon="folder" href="https://yazi-rs.github.io">
+    Blazingly fast terminal file manager with vi-like keybindings
+  </Card>
+  
+  <Card title="Neovim" icon="code" href="https://neovim.io">
+    Vim-based text editor with modern features and extensibility
+  </Card>
+</CardGroup>
+
+## File Navigation & Management
+
+<CardGroup cols={2}>
+  <Card title="eza" icon="list" href="https://github.com/eza-community/eza">
+    Modern replacement for ls with colors and icons
+  </Card>
+  
+  <Card title="zoxide" icon="compass" href="https://github.com/ajeetdsouza/zoxide">
+    Smart directory jumper that learns your habits
+  </Card>
+  
+  <Card title="fzf" icon="search" href="https://github.com/junegunn/fzf">
+    Command-line fuzzy finder for files, commands, and more
+  </Card>
+  
+  <Card title="fd" icon="magnifying-glass" href="https://github.com/sharkdp/fd">
+    Fast alternative to find with intuitive syntax
+  </Card>
+</CardGroup>
+
+## Text Processing & Display
+
+<CardGroup cols={2}>
+  <Card title="bat" icon="cat" href="https://github.com/sharkdp/bat">
+    Cat clone with syntax highlighting and Git integration
+  </Card>
+  
+  <Card title="thefuck" icon="wand-magic-sparkles" href="https://github.com/nvbn/thefuck">
+    Corrects errors in previous console commands
+  </Card>
+</CardGroup>
+
+## Development Runtimes
+
+<CardGroup cols={2}>
+  <Card title="NVM" icon="node" href="https://github.com/nvm-sh/nvm">
+    Node Version Manager for managing multiple Node.js versions
+  </Card>
+  
+  <Card title="Bun" icon="rabbit" href="https://bun.sh">
+    Fast all-in-one JavaScript runtime and toolkit
+  </Card>
+</CardGroup>
+
+---
+
+## Tool Details
+
+### Oh My Zsh
+
+**Installation:**
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+**Configuration Location:** `~/.zshrc`
+
+**Key Features:**
+- Plugin management system
+- Theme support
+- Auto-update mechanism
+- Extensive plugin library
+
+<Tip>
+The configuration uses the `git` plugin for enhanced Git command shortcuts.
+</Tip>
+
+---
+
+### Powerlevel10k
+
+**Installation (via Homebrew):**
+```bash
+brew install powerlevel10k
+```
+
+**Configuration:**
+```bash
+p10k configure
+```
+
+**Features:**
+- Instant prompt for near-zero latency
+- Extensive customization options
+- Shows Git status, command execution time, exit codes
+- Transient prompt support
+
+<Note>
+The instant prompt is enabled at the top of `.zshrc` for maximum speed. Configure with `~/.p10k.zsh`.
+</Note>
+
+---
+
+### Tmux
+
+**Installation:**
+```bash
+brew install tmux
+```
+
+**Basic Usage:**
+```bash
+# Start new session
+tmux
+
+# List sessions
+tmux ls
+
+# Attach to session
+tmux attach -t <session-name>
+
+# Detach from session
+Ctrl+a d
+```
+
+**Custom Keybindings (from .tmux.conf):**
+- **Prefix:** `Ctrl+a` (instead of default `Ctrl+b`)
+- **Split horizontally:** `Ctrl+a |`
+- **Split vertically:** `Ctrl+a -`
+- **Reload config:** `Ctrl+a r`
+- **Resize panes:** `Ctrl+a h/j/k/l`
+- **Maximize pane:** `Ctrl+a m`
+- **Clear pane:** `Alt+e`
+
+**Features Enabled:**
+- 256 color support with RGB
+- Vi mode for copy-mode
+- Mouse support
+- Pane navigation with vim-tmux-navigator
+
+---
+
+### TPM (Tmux Plugin Manager)
+
+**Installation:**
+```bash
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+```
+
+**Plugin Management:**
+- **Install plugins:** `Ctrl+a I`
+- **Update plugins:** `Ctrl+a U`
+- **Remove plugins:** `Ctrl+a alt+u`
+
+---
+
+### Yazi
+
+**Installation:**
+```bash
+brew install yazi
+```
+
+**Launch Yazi:**
+```bash
+# Using the shell wrapper function (recommended)
+y
+
+# Direct launch
+yazi
+```
+
+**Key Features (from yazi.toml):**
+- **Show hidden files:** Enabled by default
+- **Sort:** Alphabetical, directories first
+- **Preview:** Supports images, videos, code with syntax highlighting
+- **Mouse support:** Click and scroll enabled
+- **Panel ratio:** 2:4:3 (parent:current:preview)
+
+**Basic Keybindings:**
+- **Navigation:** `h/j/k/l` or arrow keys
+- **Open file:** `Enter` or `o`
+- **Search by name:** `s` (uses fd)
+- **Search by content:** `S` (uses ripgrep)
+- **Jump with fzf:** `z`
+- **Jump with zoxide:** `Z`
+- **Create file/dir:** `a`
+- **Delete:** `d` (trash) or `D` (permanent)
+- **Toggle hidden:** `.`
+
+<Tip>
+The shell wrapper function `y()` in `.zshrc` allows Yazi to change your shell's directory when you exit.
+</Tip>
+
+---
+
+### eza
+
+**Installation:**
+```bash
+brew install eza
+```
+
+**Usage (aliased as ls):**
+```bash
+ls          # Lists with icons
+ls -la      # Long format with all files
+ls -T       # Tree view
+ls -s modified  # Sort by modification time
+```
+
+**Configuration:** Aliased in `.zshrc` as:
+```bash
+alias ls="eza --icons=always"
+```
+
+---
+
+### zoxide
+
+**Installation:**
+```bash
+brew install zoxide
+```
+
+**Usage (aliased as cd):**
+```bash
+cd ~/projects/myapp  # First visit uses full path
+cd myapp             # Later visits use smart matching
+z myapp              # Direct zoxide command
+zi                   # Interactive selection with fzf
+```
+
+**Configuration:** Initialized in `.zshrc`:
+```bash
+eval "$(zoxide init zsh)"
+alias cd="z"
+```
+
+<Note>
+zoxide learns from your directory navigation patterns and provides smart completions.
+</Note>
+
+---
+
+### fzf
+
+**Installation:**
+```bash
+brew install fzf
+```
+
+**Key Bindings:**
+- **`Ctrl+T`:** Find files in current directory
+- **`Ctrl+R`:** Search command history
+- **`Alt+C`:** Find and cd into directory
+
+**Custom Configuration (from .zshrc):**
+```bash
+# Uses fd instead of find for better performance
+export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+```
+
+**Custom Theme:**
+Configured with a custom dark blue/cyan color scheme matching the terminal theme.
+
+---
+
+### fd
+
+**Installation:**
+```bash
+brew install fd
+```
+
+**Usage:**
+```bash
+fd pattern              # Find files matching pattern
+fd -t f pattern        # Files only
+fd -t d pattern        # Directories only
+fd -H pattern          # Include hidden files
+fd -e txt              # Find by extension
+```
+
+**Integration:** Used by fzf for file completion and search.
+
+---
+
+### bat
+
+**Installation:**
+```bash
+brew install bat
+```
+
+**Usage:**
+```bash
+bat file.txt           # View with syntax highlighting
+bat -n file.txt        # Show line numbers
+bat --diff file.txt    # Show with git diff
+```
+
+**Features:**
+- Syntax highlighting for 100+ languages
+- Git integration
+- Automatic paging
+- Line numbers and git changes
+
+---
+
+### thefuck
+
+**Installation:**
+```bash
+brew install thefuck
+```
+
+**Usage:**
+```bash
+# Make a typo
+git psuh origin main
+
+# Correct it
+fuck
+# → Suggests: git push origin main
+```
+
+**Configuration:** Initialized in `.zshrc`:
+```bash
+eval $(thefuck --alias)
+```
+
+---
+
+### NVM (Node Version Manager)
+
+**Installation:**
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+```
+
+**Configuration (from .zshrc):**
+```bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+```
+
+**Basic Usage:**
+```bash
+nvm install node       # Install latest Node.js
+nvm install 18         # Install Node.js 18
+nvm use 18             # Use Node.js 18
+nvm ls                 # List installed versions
+```
+
+---
+
+### Bun
+
+**Installation:**
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+**Configuration (from .zshrc):**
+```bash
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+```
+
+**Basic Usage:**
+```bash
+bun run dev            # Run dev script
+bun install            # Install dependencies
+bun test               # Run tests
+bun create             # Create new project
+```
+
+---
+
+### Neovim
+
+**Installation:**
+```bash
+brew install neovim
+```
+
+**Aliases (from .zshrc):**
+```bash
+alias vim='nvim'
+alias vi='nvim'
+```
+
+**Environment Variable:**
+```bash
+export EDITOR=nvim
+```
+
+<Note>
+All `vim` and `vi` commands automatically use Neovim. The `$EDITOR` variable is set system-wide for Neovim.
+</Note>
+
+---
+
+## Quick Setup
+
+Install all tools at once:
+
+```bash
+# Using Homebrew on macOS/Linux
+brew install tmux neovim eza zoxide fzf fd bat thefuck
+
+# Install Oh My Zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+# Install Powerlevel10k
+brew install powerlevel10k
+
+# Install TPM
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+
+# Install Yazi
+brew install yazi
+
+# Install NVM
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# Install Bun
+curl -fsSL https://bun.sh/install | bash
+```
+
+<Warning>
+Make sure to symlink the dotfiles after installing the tools. See the [Installation Guide](/installation).
+</Warning>

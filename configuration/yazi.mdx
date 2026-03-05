@@ -1,0 +1,434 @@
+---
+title: Yazi Configuration
+description: Complete guide to Yazi file manager configuration including manager settings, preview options, file openers, and theme customization
+---
+
+## Overview
+
+Yazi is a blazing fast terminal file manager built on async I/O. The configuration includes:
+- Manager settings for file display and sorting
+- Preview configuration for different file types
+- Custom file openers and associations
+- Plugin system for enhanced functionality
+- Rose Pine theme for consistent aesthetics
+
+## Manager Settings
+
+```toml yazi.toml:6-19
+[mgr]
+ratio          = [ 2, 4, 3 ]
+sort_by        = "alphabetical"
+sort_sensitive = false
+sort_reverse   = false
+sort_dir_first = true
+sort_translit  = false
+linemode       = "none"
+show_hidden    = true
+show_symlink   = true
+scrolloff      = 5
+mouse_events   = [ "click", "scroll" ]
+title_format   = "Yazi: {cwd}"
+```
+
+<ParamField path="ratio" type="array" default="[2, 4, 3]">
+  Column width ratios for parent, current, and preview panes (2:4:3)
+</ParamField>
+
+<ParamField path="sort_by" type="string" default="alphabetical">
+  Default sorting method: `alphabetical`, `natural`, `modified`, `created`, `extension`, or `size`
+</ParamField>
+
+<ParamField path="sort_dir_first" type="boolean" default="true">
+  Display directories before files when sorting
+</ParamField>
+
+<ParamField path="show_hidden" type="boolean" default="true">
+  Show hidden files (dotfiles) by default. Toggle with `.` key
+</ParamField>
+
+<ParamField path="show_symlink" type="boolean" default="true">
+  Display symlink indicators and targets
+</ParamField>
+
+<ParamField path="scrolloff" type="number" default="5">
+  Minimum number of lines to keep visible above/below cursor
+</ParamField>
+
+<ParamField path="mouse_events" type="array" default="['click', 'scroll']">
+  Enabled mouse interactions for navigation and scrolling
+</ParamField>
+
+## Preview Configuration
+
+```toml yazi.toml:21-33
+[preview]
+wrap            = "yes"
+tab_size        = 2
+max_width       = 1200
+max_height      = 1000
+cache_dir       = ""
+image_delay     = 30
+image_filter    = "triangle"
+image_quality   = 75
+ueberzug_scale  = 1
+ueberzug_offset = [ 0, 0, 0, 0 ]
+```
+
+<Tabs>
+  <Tab title="Text Preview">
+    <ParamField path="wrap" type="string" default="yes">
+      Wrap long lines in text preview (`yes`, `no`, or `auto`)
+    </ParamField>
+
+    <ParamField path="tab_size" type="number" default="2">
+      Number of spaces to display for tab characters
+    </ParamField>
+  </Tab>
+
+  <Tab title="Image Preview">
+    <ParamField path="max_width" type="number" default="1200">
+      Maximum width in pixels for image previews
+    </ParamField>
+
+    <ParamField path="max_height" type="number" default="1000">
+      Maximum height in pixels for image previews
+    </ParamField>
+
+    <ParamField path="image_filter" type="string" default="triangle">
+      Image scaling algorithm: `nearest`, `triangle`, `catmull-rom`, or `lanczos3`
+    </ParamField>
+
+    <ParamField path="image_quality" type="number" default="75">
+      JPEG quality for image previews (1-100)
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## File Openers
+
+Yazi defines different opener categories for handling various file types:
+
+<Accordion title="edit - Text Editors">
+  ```toml yazi.toml:36-41
+  edit = [
+    { run = "${EDITOR:-vi} %s", desc = "$EDITOR",      for = "unix", block = true },
+    { run = "code %s",          desc = "code",         for = "windows", orphan = true },
+    { run = "code -w %s",       desc = "code (block)", for = "windows", block = true },
+  ]
+  ```
+
+  - Uses `$EDITOR` environment variable (defaults to `vi`)
+  - Blocks until editor closes for synchronous operations
+  - Windows support for VS Code
+</Accordion>
+
+<Accordion title="play - Media Players">
+  ```toml yazi.toml:42-49
+  play = [
+    { run = "xdg-open %s1",    desc = "Play", for = "linux", orphan = true },
+    { run = "open %s",         desc = "Play", for = "macos" },
+    { run = 'start "" %s1',    desc = "Play", for = "windows", orphan = true },
+    { run = "termux-open %s1", desc = "Play", for = "android" },
+    { run = "mediainfo %s1; echo 'Press enter to exit'; read _", block = true, desc = "Show media info", for = "unix" },
+  ]
+  ```
+
+  Platform-specific media players with mediainfo fallback for file inspection
+</Accordion>
+
+<Accordion title="open - Default Opener">
+  ```toml yazi.toml:50-55
+  open = [
+    { run = "xdg-open %s1",    desc = "Open", for = "linux" },
+    { run = "open %s",         desc = "Open", for = "macos" },
+    { run = 'start "" %s1',    desc = "Open", for = "windows", orphan = true },
+    { run = "termux-open %s1", desc = "Open", for = "android" },
+  ]
+  ```
+
+  Uses system default application handlers for each platform
+</Accordion>
+
+<Accordion title="reveal - File Browser">
+  ```toml yazi.toml:56-62
+  reveal = [
+    { run = "xdg-open %d1",         desc = "Reveal", for = "linux" },
+    { run = "open -R %s1",          desc = "Reveal", for = "macos" },
+    { run = "explorer /select,%s1", desc = "Reveal", for = "windows", orphan = true },
+    { run = "termux-open %d1",      desc = "Reveal", for = "android" },
+    { run = "clear; exiftool %s1; echo 'Press enter to exit'; read _", desc = "Show EXIF", for = "unix", block = true },
+  ]
+  ```
+
+  Opens file in system file browser, with EXIF data viewing for Unix systems
+</Accordion>
+
+<Accordion title="extract - Archive Extraction">
+  ```toml yazi.toml:63-65
+  extract = [
+    { run = "ya pub extract --list %s", desc = "Extract here" },
+  ]
+  ```
+
+  Extracts archives using Yazi's built-in extraction plugin
+</Accordion>
+
+## File Associations
+
+```toml yazi.toml:71-94
+[open]
+rules = [
+  # Folder
+  { url = "*/", use = [ "edit", "open", "reveal" ] },
+
+  # Text
+  { mime = "text/*", use = [ "edit", "reveal" ] },
+  # Image
+  { mime = "image/*", use = [ "open", "reveal" ] },
+  # Media
+  { mime = "{audio,video}/*", use = [ "play", "reveal" ] },
+
+  # Archive
+  { mime = "application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}", use = [ "extract", "reveal" ] },
+  # JSON
+  { mime = "application/{json,ndjson}", use = [ "edit", "reveal" ] },
+  { mime = "*/javascript", use = [ "edit", "reveal" ] },
+  # Empty file
+  { mime = "inode/empty", use = [ "edit", "reveal" ] },
+  # Fallback
+  { url = "*", use = [ "open", "reveal" ] },
+]
+```
+
+Defines which openers to use for different file types based on MIME type matching:
+
+| File Type | Primary Action | Available Actions |
+|-----------|----------------|-------------------|
+| Folders | edit | edit, open, reveal |
+| Text files | edit | edit, reveal |
+| Images | open | open, reveal |
+| Audio/Video | play | play, reveal |
+| Archives | extract | extract, reveal |
+| JSON/JavaScript | edit | edit, reveal |
+| Unknown | open | open, reveal |
+
+<Note>
+Press **`o`** on a file to use the primary opener, or **`O`** for an interactive selection menu.
+</Note>
+
+## Task Configuration
+
+```toml yazi.toml:96-102
+[tasks]
+micro_workers    = 10
+macro_workers    = 10
+bizarre_retry    = 3
+image_alloc      = 536870912  # 512MB
+image_bound      = [ 10000, 10000 ]
+suppress_preload = false
+```
+
+<ParamField path="micro_workers" type="number" default="10">
+  Number of workers for lightweight tasks (stat, copy, move)
+</ParamField>
+
+<ParamField path="macro_workers" type="number" default="10">
+  Number of workers for heavyweight tasks (image decoding, video thumbnails)
+</ParamField>
+
+<ParamField path="image_alloc" type="number" default="536870912">
+  Maximum memory allocation for image processing (512MB)
+</ParamField>
+
+<ParamField path="image_bound" type="array" default="[10000, 10000]">
+  Maximum image dimensions [width, height] to process
+</ParamField>
+
+## Plugin System
+
+Yazi uses a plugin system with four categories:
+
+<Tabs>
+  <Tab title="Fetchers">
+    ```toml yazi.toml:105-111
+    fetchers = [
+      { id = "mime", url = "*/",         run = "mime.dir", prio = "high" },
+      { id = "mime", url = "local://*",  run = "mime.local", prio = "high" },
+      { id = "mime", url = "remote://*", run = "mime.remote", prio = "high" },
+    ]
+    ```
+
+    Fetchers determine file metadata like MIME types for proper handling
+  </Tab>
+
+  <Tab title="Spotters">
+    ```toml yazi.toml:113-130
+    spotters = [
+      { url = "*/", run = "folder" },
+      { mime = "text/*", run = "code" },
+      { mime = "image/*", run = "image" },
+      { mime = "video/*", run = "video" },
+      { url = "*", run = "file" },
+    ]
+    ```
+
+    Spotters provide quick information when hovering over files (spot view with `Tab` key)
+  </Tab>
+
+  <Tab title="Preloaders">
+    ```toml yazi.toml:131-146
+    preloaders = [
+      { mime = "image/*", run = "image" },
+      { mime = "video/*", run = "video" },
+      { mime = "application/pdf", run = "pdf" },
+      { mime = "font/*", run = "font" },
+    ]
+    ```
+
+    Preloaders prepare content for display before the file is selected (background processing)
+  </Tab>
+
+  <Tab title="Previewers">
+    ```toml yazi.toml:147-186
+    previewers = [
+      { url = "*/", run = "folder" },
+      { mime = "text/*", run = "code" },
+      { mime = "application/{json,ndjson}", run = "json" },
+      { mime = "image/*", run = "image" },
+      { mime = "video/*", run = "video" },
+      { mime = "application/pdf", run = "pdf" },
+      { mime = "application/{zip,rar,7z*,tar,gzip,...}", run = "archive" },
+      { url = "*", run = "file" },
+    ]
+    ```
+
+    Previewers display file content in the preview pane
+  </Tab>
+</Tabs>
+
+## Theme Configuration
+
+```toml theme.toml:1-4
+[flavour]
+dark = "rose-pine"
+light = "rose-pine"
+```
+
+Uses the Rose Pine theme for both dark and light modes, providing:
+- Consistent color scheme across Yazi interface
+- Subtle, low-contrast colors
+- Easy on the eyes for extended use
+
+### Theme Installation
+
+```toml package.toml:4-12
+[[flavor.deps]]
+use = "Mintass/rose-pine"
+rev = "d91f8f2"
+hash = "87da3630653b6d272e43658418599188"
+
+[[flavor.deps]]
+use = "Mintass/rose-pine-moon"
+rev = "94385fe"
+hash = "edbe0dfb5db8ff37281dba62adc7e750"
+```
+
+Theme packages are managed through Yazi's package system with specific revision hashes for reproducibility.
+
+<Tip>
+Run `ya pack -i` to install all configured theme packages.
+</Tip>
+
+## Keybindings
+
+Yazi uses an extensive keymap configuration defined in `keymap.toml`. Here are some essential bindings:
+
+### Navigation
+
+| Key | Action |
+|-----|--------|
+| `j/k` or `↓/↑` | Move cursor down/up |
+| `h/l` or `←/→` | Go to parent/child directory |
+| `g g` | Go to top |
+| `G` | Go to bottom |
+| `H` | Back to previous directory |
+| `L` | Forward to next directory |
+
+### File Operations
+
+| Key | Action |
+|-----|--------|
+| `o` or `Enter` | Open file |
+| `O` or `Shift+Enter` | Open file interactively |
+| `y` | Yank (copy) |
+| `x` | Cut |
+| `p` | Paste |
+| `d` | Trash files |
+| `D` | Permanently delete |
+| `a` | Create file/directory |
+| `r` | Rename |
+
+### Selection
+
+| Key | Action |
+|-----|--------|
+| `Space` | Toggle selection |
+| `Ctrl+a` | Select all |
+| `Ctrl+r` | Invert selection |
+| `v` | Enter visual mode |
+
+### Search & Filter
+
+| Key | Action |
+|-----|--------|
+| `s` | Search files by name (fd) |
+| `S` | Search files by content (ripgrep) |
+| `f` | Filter files |
+| `/` | Find next |
+| `?` | Find previous |
+| `z` | Jump with fzf |
+| `Z` | Jump with zoxide |
+
+### View Options
+
+| Key | Action |
+|-----|--------|
+| `.` | Toggle hidden files |
+| `Tab` | Spot hovered file |
+| `m s` | Show file size |
+| `m p` | Show permissions |
+| `m m` | Show modification time |
+
+### Tabs
+
+| Key | Action |
+|-----|--------|
+| `t` | Create new tab |
+| `1-9` | Switch to tab 1-9 |
+| `[` / `]` | Previous/next tab |
+| `{` / `}` | Swap tab position |
+
+## Shell Integration
+
+The Zsh configuration includes a wrapper function to enable directory changing:
+
+```bash .zshrc:205-212
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+		builtin cd -- "$cwd"
+	fi
+	rm -f -- "$tmp"
+}
+```
+
+This allows the shell to change to the directory you're in when exiting Yazi:
+- Use `y` to launch Yazi instead of `yazi`
+- Navigate to any directory in Yazi
+- Press `q` to quit
+- Shell changes to the directory you were viewing
+
+<Warning>
+Using `yazi` directly (without the wrapper) will not change the shell's working directory.
+</Warning>

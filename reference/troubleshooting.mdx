@@ -1,0 +1,741 @@
+---
+title: Troubleshooting Guide
+description: Common issues and solutions for dotfiles configuration
+---
+
+This guide covers common problems you might encounter when installing or using these dotfiles.
+
+## Installation Issues
+
+<Accordion title="Homebrew not found or PATH issues" icon="beer-mug-empty">
+  **Symptoms:**
+  - Command not found: `brew`
+  - Tools installed but not accessible
+  - Shell doesn't recognize Homebrew packages
+  
+  **Solution:**
+  
+  Ensure Homebrew is properly initialized in your shell:
+  
+  ```bash
+  # Check if Homebrew is installed
+  which brew
+  
+  # If not found, check common installation paths
+  ls /home/linuxbrew/.linuxbrew/bin/brew  # Linux
+  ls /opt/homebrew/bin/brew               # macOS Apple Silicon
+  ls /usr/local/bin/brew                  # macOS Intel
+  ```
+  
+  **From .zshrc (line 119):**
+  ```bash
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+  ```
+  
+  If the path doesn't match your system, update line 119 in `.zshrc` with the correct path:
+  
+  ```bash
+  # macOS Apple Silicon
+  eval "$(/opt/homebrew/bin/brew shellenv zsh)"
+  
+  # macOS Intel
+  eval "$(/usr/local/bin/brew shellenv zsh)"
+  ```
+  
+  Then reload:
+  ```bash
+  source ~/.zshrc
+  ```
+</Accordion>
+
+<Accordion title="Permission denied when creating symlinks" icon="lock">
+  **Symptoms:**
+  - `ln: failed to create symbolic link: Permission denied`
+  - Cannot overwrite existing files
+  
+  **Solution:**
+  
+  1. Check if files already exist:
+     ```bash
+     ls -la ~ | grep -E '\.zshrc|\.tmux\.conf'
+     ```
+  
+  2. Backup and remove existing files:
+     ```bash
+     mv ~/.zshrc ~/.zshrc.backup
+     mv ~/.tmux.conf ~/.tmux.conf.backup
+     mv ~/.config/yazi ~/.config/yazi.backup
+     ```
+  
+  3. Retry symlink creation:
+     ```bash
+     ./install.sh
+     ```
+  
+  4. If you get permission errors on system files, don't use `sudo` for dotfiles!
+</Accordion>
+
+<Accordion title="NVM not loading at shell startup" icon="node">
+  **Symptoms:**
+  - `nvm: command not found`
+  - Node commands not available
+  
+  **Diagnostic:**
+  ```bash
+  # Check if NVM is installed
+  ls -la ~/.nvm
+  
+  # Check if initialization is in .zshrc
+  grep -n NVM ~/.zshrc
+  ```
+  
+  **Solution:**
+  
+  The configuration (lines 115-117 of .zshrc) should contain:
+  ```bash
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  ```
+  
+  If NVM is not installed:
+  ```bash
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+  source ~/.zshrc
+  ```
+  
+  Verify:
+  ```bash
+  nvm --version
+  ```
+</Accordion>
+
+<Accordion title="Missing dependencies" icon="exclamation-triangle">
+  **Symptoms:**
+  - Commands work partially
+  - Features not working as expected
+  
+  **Check installed tools:**
+  ```bash
+  which zsh tmux nvim eza zoxide fzf fd bat yazi
+  ```
+  
+  **Install missing tools:**
+  ```bash
+  brew install tmux neovim eza zoxide fzf fd bat thefuck yazi
+  ```
+  
+  **Verify installations:**
+  ```bash
+  tmux -V
+  nvim --version
+  eza --version
+  zoxide --version
+  fzf --version
+  ```
+</Accordion>
+
+---
+
+## Zsh Issues
+
+<Accordion title="Powerlevel10k theme not loading" icon="bolt">
+  **Symptoms:**
+  - Plain prompt instead of fancy theme
+  - No icons or colors
+  - Prompt looks like default Zsh
+  
+  **Check installation:**
+  ```bash
+  ls /home/linuxbrew/.linuxbrew/share/powerlevel10k/powerlevel10k.zsh-theme
+  ```
+  
+  **Solution:**
+  
+  1. Install Powerlevel10k:
+     ```bash
+     brew install powerlevel10k
+     ```
+  
+  2. Verify source line in `.zshrc` (line 120):
+     ```bash
+     source /home/linuxbrew/.linuxbrew/share/powerlevel10k/powerlevel10k.zsh-theme
+     ```
+  
+  3. Update path if needed (macOS):
+     ```bash
+     source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
+     ```
+  
+  4. Run configuration wizard:
+     ```bash
+     p10k configure
+     ```
+  
+  5. Reload shell:
+     ```bash
+     exec zsh
+     ```
+</Accordion>
+
+<Accordion title="Instant prompt warnings" icon="warning">
+  **Symptoms:**
+  - Warning messages about instant prompt on shell startup
+  - Messages about initialization code
+  
+  **Example Warning:**
+  ```
+  [instant prompt] console output during initialization
+  ```
+  
+  **Cause:**
+  Code between the instant prompt block (lines 1-6) and Oh My Zsh initialization produces output.
+  
+  **Solution:**
+  
+  Move any commands that produce output (echo, print, etc.) below line 6 in `.zshrc`, or disable instant prompt:
+  
+  ```bash
+  # Comment out or remove lines 4-6
+  # if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  #   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+  # fi
+  ```
+</Accordion>
+
+<Accordion title="Command history not persisting" icon="clock-rotate-left">
+  **Symptoms:**
+  - History disappears after closing terminal
+  - Cannot find previously used commands
+  - `Ctrl+R` finds nothing
+  
+  **Check configuration (lines 126-133 of .zshrc):**
+  ```bash
+  grep -A 10 "history setup" ~/.zshrc
+  ```
+  
+  **Should contain:**
+  ```bash
+  HISTFILE=$HOME/.zhistory
+  SAVEHIST=1000
+  HISTSIZE=999
+  setopt share_history
+  setopt hist_expire_dups_first
+  setopt hist_ignore_dups
+  setopt hist_verify
+  ```
+  
+  **Fix:**
+  
+  1. Check if history file exists:
+     ```bash
+     ls -la ~/.zhistory
+     ```
+  
+  2. If missing, create it:
+     ```bash
+     touch ~/.zhistory
+     ```
+  
+  3. Check permissions:
+     ```bash
+     chmod 600 ~/.zhistory
+     ```
+  
+  4. Reload shell:
+     ```bash
+     exec zsh
+     ```
+</Accordion>
+
+<Accordion title="Plugins not working" icon="puzzle-piece">
+  **Symptoms:**
+  - No command suggestions
+  - No syntax highlighting
+  - Git aliases not available
+  
+  **Check plugin installation:**
+  ```bash
+  # zsh-autosuggestions
+  ls /home/linuxbrew/.linuxbrew/share/zsh-autosuggestions/
+  
+  # zsh-syntax-highlighting
+  ls /home/linuxbrew/.linuxbrew/share/zsh-syntax-highlighting/
+  ```
+  
+  **Install missing plugins:**
+  ```bash
+  brew install zsh-autosuggestions zsh-syntax-highlighting
+  ```
+  
+  **Verify source lines in .zshrc:**
+  ```bash
+  # Line 138
+  source /home/linuxbrew/.linuxbrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  
+  # Line 143
+  source /home/linuxbrew/.linuxbrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  ```
+  
+  **Test:**
+  ```bash
+  # Start typing a previous command - you should see gray suggestion
+  echo "test"
+  # Type: echo (suggestion should appear)
+  ```
+</Accordion>
+
+<Accordion title="Aliases not working (ls, cd, vim)" icon="terminal">
+  **Symptoms:**
+  - `ls` doesn't show icons
+  - `cd` behaves like normal cd
+  - `vim` opens Vi instead of Neovim
+  
+  **Check tool installation:**
+  ```bash
+  which eza zoxide nvim
+  ```
+  
+  **Install missing tools:**
+  ```bash
+  brew install eza zoxide neovim
+  ```
+  
+  **Check aliases:**
+  ```bash
+  alias ls
+  alias cd
+  alias vim
+  alias vi
+  ```
+  
+  **Should show:**
+  ```bash
+  ls='eza --icons=always'
+  cd='z'
+  vim='nvim'
+  vi='nvim'
+  ```
+  
+  **If not, reload:**
+  ```bash
+  source ~/.zshrc
+  ```
+</Accordion>
+
+---
+
+## Tmux Issues
+
+<Accordion title="True color not working" icon="palette">
+  **Symptoms:**
+  - Colors look washed out or incorrect
+  - Theme appears broken
+  - Neovim colors don't match outside tmux
+  
+  **Check tmux color support:**
+  ```bash
+  tmux info | grep Tc
+  ```
+  
+  **Configuration (lines 1, 28-29 of .tmux.conf):**
+  ```bash
+  set -g default-terminal "tmux-256color"
+  set -ga terminal-overrides ",xterm-256color:RGB"
+  ```
+  
+  **Solution:**
+  
+  1. Verify your terminal emulator supports true color
+  2. Check `$TERM` outside tmux:
+     ```bash
+     echo $TERM  # Should be xterm-256color or similar
+     ```
+  
+  3. Inside tmux:
+     ```bash
+     echo $TERM  # Should be tmux-256color
+     ```
+  
+  4. Test colors:
+     ```bash
+     # Run this script
+     awk 'BEGIN{
+         s="/\\\/\\\/\\\/\\\/\\\/\\\/\\\/"; s=s s s s s s s s;
+         for (colnum = 0; colnum<77; colnum++) {
+             r = 255-(colnum*255/76);
+             g = (colnum*510/76);
+             b = (colnum*255/76);
+             if (g>255) g = 510-g;
+             printf "\033[48;2;%d;%d;%dm", r,g,b;
+             printf "\033[38;2;%d;%d;%dm", 255-r,255-g,255-b;
+             printf "%s\033[0m", substr(s,colnum+1,1);
+         }
+         printf "\n";
+     }'
+     ```
+  
+  5. Reload tmux config:
+     ```bash
+     tmux source-file ~/.tmux.conf
+     ```
+</Accordion>
+
+<Accordion title="Plugins not loading" icon="plug">
+  **Symptoms:**
+  - No theme applied
+  - Keybindings don't work
+  - Session restore not working
+  
+  **Check TPM installation:**
+  ```bash
+  ls -la ~/.tmux/plugins/tpm
+  ```
+  
+  **Install TPM if missing:**
+  ```bash
+  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+  ```
+  
+  **Install plugins:**
+  1. Start tmux: `tmux`
+  2. Press `Ctrl+a I` (capital I)
+  3. Wait for installation to complete
+  
+  **Check plugin installation:**
+  ```bash
+  ls ~/.tmux/plugins/
+  # Should see: tpm, vim-tmux-navigator, tmux-themepack, etc.
+  ```
+  
+  **Verify .tmux.conf (line 53):**
+  ```bash
+  run '~/.tmux/plugins/tpm/tpm'
+  ```
+  
+  **Troubleshooting:**
+  - Make sure this line is at the END of `.tmux.conf`
+  - Reload config: `Ctrl+a r`
+  - Retry plugin installation: `Ctrl+a I`
+</Accordion>
+
+<Accordion title="Session restore not working" icon="floppy-disk">
+  **Symptoms:**
+  - Sessions don't persist after reboot
+  - `Ctrl+a Ctrl+r` doesn't restore anything
+  - Windows/panes not restored
+  
+  **Check plugins:**
+  ```bash
+  ls ~/.tmux/plugins/ | grep -E 'resurrect|continuum'
+  ```
+  
+  **Should see:**
+  - `tmux-resurrect`
+  - `tmux-continuum`
+  
+  **Check configuration (lines 45-46, 50-51):**
+  ```bash
+  set -g @plugin 'tmux-plugins/tmux-resurrect'
+  set -g @plugin 'tmux-plugins/tmux-continuum'
+  set -g @resurrect-capture-pane-contents 'on'
+  set -g @continuum-restore 'on'
+  ```
+  
+  **Manual save/restore:**
+  ```bash
+  # Save session
+  Ctrl+a Ctrl+s
+  
+  # Check save file
+  ls ~/.tmux/resurrect/
+  
+  # Restore session
+  Ctrl+a Ctrl+r
+  ```
+  
+  **Check continuum status:**
+  ```bash
+  # Inside tmux
+  tmux show-options -g @continuum-restore
+  # Should show: on
+  ```
+  
+  **Disable auto-restore if causing issues:**
+  ```bash
+  set -g @continuum-restore 'off'
+  ```
+</Accordion>
+
+<Accordion title="Keybindings not responding" icon="keyboard">
+  **Symptoms:**
+  - `Ctrl+a` prefix doesn't work
+  - Custom keybindings don't respond
+  - Split commands don't work
+  
+  **Test prefix:**
+  ```bash
+  # Inside tmux, press:
+  Ctrl+a ?
+  # Should show keybinding list
+  ```
+  
+  **Check prefix configuration (lines 3-5):**
+  ```bash
+  set -g prefix C-a
+  unbind C-b
+  bind-key C-a send-prefix
+  ```
+  
+  **Common keybindings to test:**
+  ```bash
+  Ctrl+a |      # Split horizontal
+  Ctrl+a -      # Split vertical
+  Ctrl+a r      # Reload config
+  Ctrl+a m      # Maximize pane
+  Alt+e         # Clear pane
+  ```
+  
+  **Reload config:**
+  ```bash
+  tmux source-file ~/.tmux.conf
+  # Or inside tmux: Ctrl+a r
+  ```
+  
+  **Check for conflicts:**
+  ```bash
+  # List all keybindings
+  tmux list-keys
+  ```
+</Accordion>
+
+---
+
+## Yazi Issues
+
+<Accordion title="Theme not applying" icon="paintbrush">
+  **Symptoms:**
+  - Default colors instead of custom theme
+  - No visual customization
+  
+  **Check configuration:**
+  ```bash
+  ls ~/.config/yazi/yazi.toml
+  ```
+  
+  **Verify symlink:**
+  ```bash
+  ls -la ~/.config/yazi/
+  # Should be a symlink to dotfiles repo
+  ```
+  
+  **Recreate symlink if needed:**
+  ```bash
+  rm -rf ~/.config/yazi
+  ln -s ~/dotfiles/.config/yazi ~/.config/yazi
+  ```
+  
+  **Test:**
+  ```bash
+  yazi
+  ```
+</Accordion>
+
+<Accordion title="File preview not working" icon="eye">
+  **Symptoms:**
+  - No file preview in right panel
+  - Blank preview area
+  - Errors in preview pane
+  
+  **Configuration (lines 21-33 of yazi.toml):**
+  ```toml
+  [preview]
+  wrap = "yes"
+  tab_size = 2
+  max_width = 1200
+  max_height = 1000
+  ```
+  
+  **Check dependencies:**
+  ```bash
+  # For code preview
+  which bat
+  
+  # For image preview
+  which ueberzug  # or imgcat on macOS
+  
+  # For PDF preview
+  which pdftoppm
+  
+  # For video thumbnails
+  which ffmpegthumbnailer
+  ```
+  
+  **Install preview tools:**
+  ```bash
+  brew install bat
+  brew install ffmpegthumbnailer  # For video
+  brew install poppler            # For PDF
+  ```
+  
+  **Test specific file types:**
+  ```bash
+  yazi /path/to/code/file.js
+  yazi /path/to/image.png
+  ```
+</Accordion>
+
+<Accordion title="Image preview issues" icon="image">
+  **Symptoms:**
+  - Images don't display in preview
+  - Broken or distorted image previews
+  
+  **Configuration (lines 30-33 of yazi.toml):**
+  ```toml
+  image_filter = "triangle"
+  image_quality = 75
+  ueberzug_scale = 1
+  ueberzug_offset = [ 0, 0, 0, 0 ]
+  ```
+  
+  **Terminal compatibility:**
+  - Kitty: Built-in image protocol (best)
+  - iTerm2: Built-in image protocol
+  - Alacritty: Requires sixel support
+  - Other terminals: May need ueberzug++
+  
+  **Install image backend:**
+  ```bash
+  # For most terminals
+  brew install ueberzug
+  
+  # Or for modern terminals with sixel
+  brew install libsixel
+  ```
+  
+  **Set Yazi to use correct protocol:**
+  Check Yazi's image preview documentation for your terminal.
+</Accordion>
+
+<Accordion title="Plugins not working (fzf, zoxide)" icon="plug">
+  **Symptoms:**
+  - Pressing `z` or `Z` does nothing
+  - No fuzzy finding or directory jumping
+  
+  **Check keybindings (lines 91-92 of keymap.toml):**
+  ```toml
+  { on = "z", run = "plugin fzf", desc = "Jump to a file/directory via fzf" }
+  { on = "Z", run = "plugin zoxide", desc = "Jump to a directory via zoxide" }
+  ```
+  
+  **Check tool installation:**
+  ```bash
+  which fzf
+  which zoxide
+  ```
+  
+  **Install if missing:**
+  ```bash
+  brew install fzf zoxide
+  ```
+  
+  **Initialize zoxide:**
+  ```bash
+  eval "$(zoxide init zsh)"
+  source ~/.zshrc
+  ```
+  
+  **Test outside Yazi:**
+  ```bash
+  # Test fzf
+  fzf
+  
+  # Test zoxide
+  z --help
+  ```
+  
+  **Inside Yazi:**
+  - Press `z` - should open fzf interface
+  - Press `Z` - should open zoxide selection
+</Accordion>
+
+---
+
+## General Debugging
+
+### Check Shell
+
+```bash
+echo $SHELL
+# Should be: /bin/zsh or /usr/bin/zsh
+```
+
+### Reload Configurations
+
+```bash
+# Reload Zsh
+source ~/.zshrc
+
+# Reload Tmux
+tmux source-file ~/.tmux.conf
+# Or inside tmux: Ctrl+a r
+
+# Yazi doesn't need reload - restart it
+```
+
+### Check PATH
+
+```bash
+echo $PATH | tr ':' '\n'
+# Should include:
+# - /home/linuxbrew/.linuxbrew/bin (Linux)
+# - /opt/homebrew/bin (macOS Apple Silicon)
+# - /usr/local/bin (macOS Intel)
+# - $HOME/.local/bin
+# - $HOME/.bun/bin
+# - NVM paths
+```
+
+### Verify Installation
+
+```bash
+# Check each tool
+for cmd in zsh tmux nvim eza zoxide fzf fd bat yazi; do
+  which $cmd && echo "✓ $cmd" || echo "✗ $cmd missing"
+done
+```
+
+### Check Symlinks
+
+```bash
+ls -la ~ | grep -E '\.zshrc|\.tmux\.conf'
+ls -la ~/.config/ | grep yazi
+
+# Should show symlinks pointing to dotfiles repo
+```
+
+---
+
+## Getting More Help
+
+<CardGroup cols={2}>
+  <Card title="Report Issue" icon="github" href="https://github.com/Magiclovekorean/dotfiles/issues">
+    Open an issue on GitHub with your error logs
+  </Card>
+  
+  <Card title="Check Logs" icon="file-lines">
+    Enable verbose output:
+    ```bash
+    zsh -x  # Debug Zsh
+    tmux -vv  # Verbose Tmux
+    ```
+  </Card>
+</CardGroup>
+
+<Note>
+When reporting issues, include:
+- Operating system and version
+- Output of diagnostic commands
+- Relevant error messages
+- Steps to reproduce
+</Note>
